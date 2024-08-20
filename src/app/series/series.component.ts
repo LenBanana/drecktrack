@@ -9,7 +9,7 @@ import { ShowStorageService } from '../../storage/storage.service';
 import { placeholderImage } from '../../config/configs';
 import { SeasonsComponent } from "../seasons/seasons.component";
 import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
-import { faEye, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faAdd, faEye, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { Router, RouterModule } from '@angular/router';
 
 @Component({
@@ -29,6 +29,7 @@ export class SeriesComponent implements OnChanges {
   menuTopLeftPosition = { x: '0', y: '0' }
   faTrash = faTrash;
   faEye = faEye;
+  faAdd = faAdd;
 
   constructor(public seasonsService: SeasonsService, public storageService: ShowStorageService, public router: Router) { }
 
@@ -64,6 +65,18 @@ export class SeriesComponent implements OnChanges {
     this.menuTopLeftPosition.x = event.clientX + 'px';
     this.menuTopLeftPosition.y = event.clientY + 'px';
     this.matMenuTrigger.openMenu();
+  }
+
+  addSeason() {
+    this.show.seasons.push({
+      id: crypto.randomUUID(),
+      name: 'New Season',
+      description: '',
+      image: placeholderImage,
+      episodes: []
+    });
+
+    this.storageService.saveShow(this.show);
   }
 
   removeShow() {

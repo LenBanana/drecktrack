@@ -1,1 +1,35 @@
 /* You can add global styles to this file, and also import other style files */
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+.image-container {    
+    position: relative;
+}
+
+.image-container>img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    display: block;
+}
+
+.image-container>.overlay {
+    position: absolute;
+    bottom: 0;
+    background: rgb(0, 0, 0);
+    background: rgba(0, 0, 0, 0.5); /* Black see-through */
+    color: #f1f1f1;
+    width: 100%;
+    transition: .5s ease;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 20px;
+    padding: 20px;
+    text-align: center;
+    height: 100%;
+    line-height: 50px;
+    font-size: 28px;
+  }
+
+  .bg-darkbg {
+    background-color: #333442 !important;
+  }

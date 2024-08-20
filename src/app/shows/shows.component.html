@@ -1,0 +1,27 @@
+<div class="container mt-2">
+    <ng-template #rt let-r="result" let-t="term">
+        <img *ngIf="r.show&&r.show.image" [src]="r.show.image.medium" class="me-1" style="width: 48px" />
+        <ngb-highlight [result]="r.show.name" [term]="t"></ngb-highlight>
+    </ng-template>
+    <!-- Hidden input to hide autocomplete dropdown -->
+    <input type="text" class="d-none">
+    <input type="text" class="d-none">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="text-light">DreckTrack</h1>
+            <div class="input-group">
+                <input #instance="ngbTypeahead" id="typeahead-basic" type="text" class="form-control"
+                    [(ngModel)]="seriesSearch" [ngbTypeahead]="search" placeholder="Search any show..."
+                    [resultTemplate]="rt" [inputFormatter]="formatter" (focus)="focus$.next($any($event).target.value)" (selectItem)="selectItem($event)"
+                    (click)="click$.next($any($event).target.value)">
+                <div class="btn btn-primary" (click)="saveSeriesSearch()"><fa-icon [icon]="faAdd"></fa-icon></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-12" *ngFor="let show of selectedShows">
+            <app-series [show]="show" (remove)="removeShow($event)"></app-series>
+        </div>
+    </div>
+</div>

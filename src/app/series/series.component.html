@@ -1,0 +1,31 @@
+<div class="card bg-dark text-light mb-3" *ngIf="show" style="height: 160px; overflow: hidden;" (click)="openShow()" (contextmenu)="onRightClick($event)">
+    <div class="row g-0">
+        <div class="col-3 col-md-1">
+            <div class="image-container" style="height: 160px;">
+                <img *ngIf="show.image" [src]="show.image" [alt]="show.name" class="img-fluid rounded-start">
+                <div class="overlay rounded-start" *ngIf="getProgress(show)>=100"><fa-icon [icon]="faEye"></fa-icon></div>
+            </div> 
+        </div>
+        <div class="col-9 col-md-11">
+            <div class="card-body">
+                <h3 class="card-title">{{ show.name }}</h3>
+                <p class="card-text" [innerHTML]="show.description"></p>                
+            </div>
+            <div class="card-footer bg-transparent" *ngIf="getProgress(show)>0">
+                <div class="progress bg-darkbg">
+                    <div class="progress-bar bg-primary" role="progressbar" [style.width]="getProgress(show) + '%'"
+                        aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">{{getProgress(show)}}%</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- an hidden div is created to set the position of appearance of the menu-->
+<div style="visibility: hidden; position: fixed;" [style.left]="menuTopLeftPosition.x"
+    [style.top]="menuTopLeftPosition.y" [matMenuTriggerFor]="menu"></div>
+<mat-menu #menu="matMenu">
+    <button mat-menu-item (click)="removeShow()">
+        <span><fa-icon [icon]="faTrash"></fa-icon> Remove</span>
+    </button>
+</mat-menu>

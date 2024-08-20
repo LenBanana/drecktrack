@@ -1,5 +1,5 @@
 import { Component, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';
-import { SavedEpisode, SavedSeason, SavedShow } from '../../interfaces/show';
+import { SavedEpisode, SavedSeason } from '../../interfaces/show';
 import { CommonModule } from '@angular/common';
 import { faEye, faPen, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';

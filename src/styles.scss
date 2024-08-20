@@ -69,15 +69,32 @@ body {
 }
 
 .animate-width {
-  animation: width 2.5s linear forwards;
+  animation: grow 2.5s linear forwards;
 }
 
-@keyframes width {
+.animate-fade-out {
+  animation: fadeOutToBottom 0.25s linear forwards;
+  animation-delay: 2.5s;
+}
+
+@keyframes grow {
   from {
     width: 0;
   }
 
   to {
     width: 100%;
+  }
+}
+
+@keyframes fadeOutToBottom {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateX(-50px);
   }
 }

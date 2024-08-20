@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnDestroy, Output, ViewChild } from '@angular/core';
+import { Component, OnDestroy, ViewChild } from '@angular/core';
 import { debounceTime, distinctUntilChanged, filter, map, merge, Observable, of, OperatorFunction, Subject, Subscription, switchMap } from 'rxjs';
 import { NgbPaginationModule, NgbToastModule, NgbTypeahead, NgbTypeaheadModule, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule } from '@angular/forms';
@@ -11,7 +11,7 @@ import { ShowStorageService } from '../../storage/storage.service';
 import { SeriesComponent } from '../series/series.component';
 import { SavedShow } from '../../interfaces/show';
 import { SeriesSearch } from '../../interfaces/series-search';
-import { placeholderImage, undoTimeout } from '../../config/configs';
+import { placeholderImage } from '../../config/configs';
 import { KonamiService } from '../../konami/konami.service';
 
 

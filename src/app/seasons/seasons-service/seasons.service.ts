@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { baseApiUrl } from '../../config/configs';
+import { baseApiUrl } from '../../../config/configs';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { SeasonSearch } from '../../interfaces/season-search';
+import { SeasonSearch } from '../../../interfaces/season-search';
 
 @Injectable({
   providedIn: 'root'

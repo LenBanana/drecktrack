@@ -8,7 +8,9 @@
     <input type="text" class="d-none">
     <div class="row">
         <div class="col-12">
-            <h1 class="text-light">DreckTrack</h1>
+            <h1 class="text-light" style="line-height: 50px; font-size: 32px;"><img src="../../assets/drecktrack_icon.png" class="img-fluid me-1" style="height: 32px; width: 32px; margin-top: -8px;" /> <b>Dreck</b>Track</h1>
+        </div>
+        <div class="col-12">
             <div class="input-group">
                 <input #instance="ngbTypeahead" id="typeahead-basic" type="text" class="form-control"
                     [(ngModel)]="seriesSearch" [ngbTypeahead]="search" placeholder="Search any show..."

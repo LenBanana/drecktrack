@@ -3,18 +3,24 @@ ngb-pagination ::ng-deep a {
     background-color: rgb(29, 33, 36) !important;
     border-color: rgb(56, 64, 70);
     box-shadow: none !important;
-  }
-  
-  ngb-pagination ::ng-deep .page-item.active .page-link {
+}
+
+ngb-pagination ::ng-deep .page-item.active .page-link {
     border-color: rgb(56, 64, 70);
     background-color: rgb(40, 45, 49) !important;
-  }
+}
 
-  ngb-pagination ::ng-deep .page-item.disabled .page-link {
+ngb-pagination ::ng-deep .page-item.disabled .page-link {
     color: #FFF !important;
     border-color: rgb(56, 64, 70);
-  }
+}
 
-  ngb-pagination ::ng-deep .page-item:hover .page-link {
+ngb-pagination ::ng-deep .page-item:hover .page-link {
     border-color: rgb(56, 64, 70);
-  }
+}
+
+::placeholder {
+    color: #eee;    
+    opacity: .5;
+    font-style: italic;
+}

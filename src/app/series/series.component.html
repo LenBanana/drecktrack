@@ -1,5 +1,8 @@
 <div class="card bg-dark text-light mb-3" *ngIf="show" style="height: 160px; overflow: hidden;" (click)="openShow()"
     (contextmenu)="onRightClick($event)">
+    <div [class.d-none]="!show.deleting" [class.animate-width]="show.deleting" class="being-deleted">
+        <fa-icon [icon]="faTrash"></fa-icon>
+    </div>
     <div class="row g-0">
         <div class="col-3 col-md-1">
             <div class="image-container h-160">
@@ -10,7 +13,9 @@
         </div>
         <div class="col-9 col-md-11">
             <div class="card-body pb-0 pt-1" style="height: 120px; overflow: auto;">
-                <h3 class="card-title">{{ show.name }} - {{show.seasons.length}} Seasons</h3>
+                <h3 class="card-title" *ngIf="!show.renaming">{{ show.name }} - {{show.seasons.length}} Seasons</h3>
+                <input *ngIf="show.renaming" type="text" class="form-control" [(ngModel)]="show.name"
+                    (blur)="saveName()" (keyup.enter)="saveName()">
                 <p class="card-text" [innerHTML]="show.description"></p>
             </div>
             <div class="card-footer bg-transparent">
@@ -28,10 +33,13 @@
 <div style="visibility: hidden; position: fixed;" [style.left]="menuTopLeftPosition.x"
     [style.top]="menuTopLeftPosition.y" [matMenuTriggerFor]="menu"></div>
 <mat-menu #menu="matMenu">
+    <button mat-menu-item (click)="show.renaming=true">
+        <span><fa-icon [icon]="faPen" class="me-2"></fa-icon> Rename</span>
+    </button>
     <button mat-menu-item (click)="addSeason()">
-        <span><fa-icon [icon]="faAdd"></fa-icon> Add Season</span>
+        <span><fa-icon [icon]="faAdd" class="me-2"></fa-icon> Season</span>
     </button>
     <button mat-menu-item (click)="removeShow()">
-        <span><fa-icon [icon]="faTrash"></fa-icon> Remove</span>
+        <span><fa-icon [icon]="faTrash" class="me-2"></fa-icon> Remove</span>
     </button>
 </mat-menu>

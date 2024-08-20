@@ -4,12 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule, JsonPipe } from '@angular/common';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { SeasonsService } from '../seasons/seasons-service/seasons.service';
-import { getProgress, SavedShow } from '../../interfaces/show';
+import { getProgress, SavedSeason, SavedShow } from '../../interfaces/show';
 import { ShowStorageService } from '../../storage/storage.service';
-import { placeholderImage } from '../../config/configs';
+import { placeholderImage, undoTimeout } from '../../config/configs';
 import { SeasonsComponent } from "../seasons/seasons.component";
 import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
-import { faAdd, faEye, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faAdd, faEye, faPen, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { Router, RouterModule } from '@angular/router';
 
 @Component({
@@ -23,13 +23,14 @@ export class SeriesComponent implements OnChanges {
   @ViewChild(MatMenuTrigger, { static: true }) matMenuTrigger!: MatMenuTrigger;
   @Input() show!: SavedShow;
   @Output() remove = new EventEmitter<SavedShow>();
-
   getProgress = getProgress;
 
+  removeTimeout: any;
   menuTopLeftPosition = { x: '0', y: '0' }
   faTrash = faTrash;
   faEye = faEye;
   faAdd = faAdd;
+  faPen = faPen;
 
   constructor(public seasonsService: SeasonsService, public storageService: ShowStorageService, public router: Router) { }
 
@@ -40,15 +41,12 @@ export class SeriesComponent implements OnChanges {
 
     this.seasonsService.searchSeasons(this.show.id).subscribe(seasons => {
       seasons.forEach(season => {
-        this.show.seasons.push(
-          {
-            id: season.id,
-            name: season.name,
-            description: season.summary,
-            image: season.image?.medium ?? placeholderImage,
-            episodes: []
-          }
-        );
+        this.show.seasons.push(new SavedSeason(
+          season.id,
+          season.name,
+          season.summary,
+          season.image?.medium ?? placeholderImage,
+          []));
 
         this.storageService.saveShow(this.show);
       });
@@ -56,6 +54,11 @@ export class SeriesComponent implements OnChanges {
   }
 
   async openShow() {
+    if (this.show.deleting) {
+      this.cancelDelete();
+      return;
+    }
+
     // Navigate to relative route for the show
     await this.router.navigate(['show', this.show.id]);
   }
@@ -68,19 +71,36 @@ export class SeriesComponent implements OnChanges {
   }
 
   addSeason() {
-    this.show.seasons.push({
-      id: crypto.randomUUID(),
-      name: 'New Season',
-      description: '',
-      image: placeholderImage,
-      episodes: []
-    });
+    this.show.seasons.push(new SavedSeason(
+      crypto.randomUUID(),
+      'New Season',
+      '',
+      placeholderImage,
+      []
+    ));
 
     this.storageService.saveShow(this.show);
   }
 
+  saveName() {
+    this.show.renaming = false;
+    this.storageService.saveShow(this.show);
+  }
+
   removeShow() {
-    this.storageService.removeShow(this.show);
-    this.remove.emit(this.show);
+    this.show.deleting = true;
+
+    this.removeTimeout = setTimeout(() => {
+      this.remove.emit(this.show);
+    }, undoTimeout);
+  }
+
+  cancelDelete() {
+    if (!this.show.deleting) {
+      return;
+    }
+
+    this.show.deleting = false;
+    clearTimeout(this.removeTimeout);
   }
 }

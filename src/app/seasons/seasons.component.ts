@@ -1,13 +1,13 @@
 import { Component, Input, OnChanges, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faAdd, faArrowLeft, faEye } from '@fortawesome/free-solid-svg-icons';
+import { faAdd, faArrowLeft, faEye, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { ShowStorageService } from '../../storage/storage.service';
 import { SavedEpisode, SavedSeason, SavedShow } from '../../interfaces/show';
 import { CommonModule } from '@angular/common';
 import { NgbAccordionModule } from '@ng-bootstrap/ng-bootstrap';
 import { EpisodesService } from '../episodes/episodes-service/episodes.service';
-import { placeholderImage, placeholderImageHorizontal } from '../../config/configs';
+import { placeholderImage, placeholderImageHorizontal, undoTimeout } from '../../config/configs';
 import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
 import { EpisodesComponent } from "../episodes/episodes.component";
 
@@ -23,6 +23,7 @@ export class SeasonsComponent {
   faArrowLeft = faArrowLeft;
   faEye = faEye;
   faAdd = faAdd;
+  faTrash = faTrash;
 
   id: string = '';
   show!: SavedShow;
@@ -81,6 +82,27 @@ export class SeasonsComponent {
 
   allWatched(season: SavedSeason): boolean {
     return season.episodes.every(episode => episode.watched);
+  }
+
+  removeSeason() {
+    this.selectedSeason.deleting = true;
+
+    setTimeout(() => {
+      if (!this.selectedSeason.deleting) {
+        return;
+      }
+      this.show.seasons = this.show.seasons.filter(s => s.id !== this.selectedSeason.id);
+      this.storageService.saveShow(this.show);
+    }, undoTimeout);
+  }
+
+  cancelDelete(event: MouseEvent, season: SavedSeason) {
+    if (!season.deleting) {
+      return;
+    }
+    event.stopPropagation();
+    event.preventDefault();
+    season.deleting = false;
   }
 
   onRightClick(event: MouseEvent, season: SavedSeason) {

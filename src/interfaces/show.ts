@@ -4,6 +4,8 @@ export class SavedShow {
     description: null | string;
     image: string;
     seasons: SavedSeason[];
+    deleting: boolean = false;
+    renaming: boolean = false;
 
     constructor(id?: number | string, name?: string, description?: null | string, image?: string, seasons?: SavedSeason[]) {
         this.id = id ?? 0;
@@ -36,6 +38,7 @@ export class SavedSeason {
     description: null | string;
     image: string;
     episodes: SavedEpisode[];
+    deleting: boolean = false;
 
     constructor(id: number | string, name: string, description: null | string, image: string, episodes: SavedEpisode[]) {
         this.id = id;

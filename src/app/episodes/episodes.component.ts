@@ -40,6 +40,7 @@ export class EpisodesComponent {
     this.selectedEpisode.renaming = true;
     setTimeout(() => {
       this.episodeNameInput.nativeElement.focus();
+      this.episodeNameInput.nativeElement.select();
     }, 0);
   }
 

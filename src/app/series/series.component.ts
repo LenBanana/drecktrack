@@ -59,7 +59,6 @@ export class SeriesComponent implements OnChanges {
       return;
     }
 
-    // Navigate to relative route for the show
     await this.router.navigate(['show', this.show.id]);
   }
 

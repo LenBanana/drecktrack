@@ -1,4 +1,4 @@
-<div class="container mt-3">
+<div class="container mt-3 glide-in">
     <ng-template #rt let-r="result" let-t="term">
         <img *ngIf="r.show&&r.show.image" [src]="r.show.image.medium" class="me-1" style="width: 48px" />
         <ngb-highlight [result]="r.show.name" [term]="t"></ngb-highlight>

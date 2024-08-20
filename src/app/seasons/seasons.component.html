@@ -1,7 +1,7 @@
 <!-- Go back button -->
 <button class="btn top-left-btn btn-outline-light" (click)="goBack()"><fa-icon [icon]="faArrowLeft"></fa-icon></button>
 
-<div class="container mt-3" *ngIf="show">
+<div class="container mt-3 glide-in" *ngIf="show">
     <div class="row">
         <div class="col-2">
             <img *ngIf="show.image" [src]="show.image" class="img-fluid rounded" />

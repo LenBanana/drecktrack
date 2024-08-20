@@ -1,4 +1,4 @@
-<div class="card bg-dark text-light mb-3" [class.animate-fade-out]="show.deleting" *ngIf="show" style="height: 160px; overflow: hidden;" (click)="openShow()"
+<div class="card bg-dark text-light mb-3 pointer shadow-sm" [class.animate-fade-out]="show.deleting" *ngIf="show" style="height: 160px; overflow: hidden;" (click)="openShow()"
     (contextmenu)="onRightClick($event)">
     <div [class.d-none]="!show.deleting" [class.animate-width]="show.deleting" class="being-deleted">
         <fa-icon [icon]="faTrash"></fa-icon>

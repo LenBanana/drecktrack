@@ -10,6 +10,10 @@ body {
   font-family: Roboto, "Helvetica Neue", sans-serif;
 }
 
+.pointer {
+  cursor: pointer;
+}
+
 .image-container {
   position: relative;
 }
@@ -66,6 +70,14 @@ body {
   height: 100%;
   z-index: 10000;
   cursor: pointer;
+}
+
+.dropdown-menu {
+  background-color: #343a40 !important;
+}
+
+.dropdown-item {
+  color: #FFF !important;
 }
 
 .animate-width {

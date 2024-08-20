@@ -7,7 +7,7 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faAdd } from '@fortawesome/free-solid-svg-icons';
 import { RouterOutlet } from '@angular/router';
 import { SeriesService } from '../series/series-service/series.service';
-import { ShowStorageService } from '../../helper/storage.service';
+import { ShowStorageService } from '../../storage/storage.service';
 import { SeriesComponent } from '../series/series.component';
 import { SavedShow } from '../../interfaces/show';
 import { SeriesSearch } from '../../interfaces/series-search';

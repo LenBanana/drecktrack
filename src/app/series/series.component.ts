@@ -5,7 +5,7 @@ import { CommonModule, JsonPipe } from '@angular/common';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { SeasonsService } from '../seasons/seasons-service/seasons.service';
 import { getProgress, SavedShow } from '../../interfaces/show';
-import { ShowStorageService } from '../../helper/storage.service';
+import { ShowStorageService } from '../../storage/storage.service';
 import { placeholderImage } from '../../config/configs';
 import { SeasonsComponent } from "../seasons/seasons.component";
 import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';

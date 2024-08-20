@@ -2,7 +2,7 @@ import { Component, Input, OnChanges, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faArrowLeft, faEye } from '@fortawesome/free-solid-svg-icons';
-import { ShowStorageService } from '../../helper/storage.service';
+import { ShowStorageService } from '../../storage/storage.service';
 import { SavedEpisode, SavedSeason, SavedShow } from '../../interfaces/show';
 import { CommonModule } from '@angular/common';
 import { NgbAccordionModule } from '@ng-bootstrap/ng-bootstrap';

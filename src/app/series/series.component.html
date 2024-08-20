@@ -14,7 +14,7 @@
         <div class="col-9 col-md-11">
             <div class="card-body pb-0 pt-1" style="height: 120px; overflow: auto;">
                 <h3 class="card-title" *ngIf="!show.renaming">{{ show.name }} - {{show.seasons.length}} Seasons</h3>
-                <input *ngIf="show.renaming" type="text" class="form-control" [(ngModel)]="show.name"
+                <input id="show-input-{{show.id}}" *ngIf="show.renaming" type="text" class="form-control bg-dark text-light border-secondary mb-2" [(ngModel)]="show.name"
                     (blur)="saveName()" (keyup.enter)="saveName()">
                 <p class="card-text" [innerHTML]="show.description"></p>
             </div>
@@ -33,7 +33,7 @@
 <div style="visibility: hidden; position: fixed;" [style.left]="menuTopLeftPosition.x"
     [style.top]="menuTopLeftPosition.y" [matMenuTriggerFor]="menu"></div>
 <mat-menu #menu="matMenu">
-    <button mat-menu-item (click)="show.renaming=true">
+    <button mat-menu-item (click)="renameShow()">
         <span><fa-icon [icon]="faPen" class="me-2"></fa-icon> Rename</span>
     </button>
     <button mat-menu-item (click)="addSeason()">

@@ -10,7 +10,7 @@
         <div class="col-12 col-md-10">
             <div class="card-body">
                 <h3 class="card-title" *ngIf="!episode.renaming">{{ episode.name }}</h3>
-                <input #episodeNameInput *ngIf="episode.renaming" type="text" class="form-control" [(ngModel)]="episode.name" (blur)="saveName()" (keyup.enter)="saveName()">
+                <input #episodeNameInput *ngIf="episode.renaming" type="text" class="form-control bg-dark text-light border-secondary mb-2" [(ngModel)]="episode.name" (blur)="saveName()" (keyup.enter)="saveName()">
                 <p class="card-text" [innerHTML]="episode.description"></p>
             </div>
         </div>

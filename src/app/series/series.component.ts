@@ -86,6 +86,15 @@ export class SeriesComponent implements OnChanges {
     this.storageService.saveShow(this.show);
   }
 
+  renameShow() {
+    this.show.renaming = true;
+    setTimeout(() => {      
+      const showInput = document.getElementById('show-input-' + this.show.id) as HTMLInputElement;
+      showInput?.focus();
+      showInput?.select();
+    }, 0);
+  }
+
   removeShow() {
     this.show.deleting = true;
 

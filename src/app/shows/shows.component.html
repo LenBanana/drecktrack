@@ -8,23 +8,27 @@
     <input type="text" class="d-none">
     <div class="row">
         <div class="col-12 text-center">
-            <h1 class="text-light" style="line-height: 50px; font-size: 32px;"><img src="../../assets/drecktrack_icon.png" class="img-fluid me-1" style="height: 32px; width: 32px; margin-top: -8px;" /> <b>Dreck</b>Track</h1>
+            <h1 class="text-light" style="line-height: 50px; font-size: 32px;">
+                <img src="../../assets/drecktrack_icon.png" class="img-fluid me-1"
+                    style="height: 32px; width: 32px; margin-top: -8px;" /> <b>Dreck</b>Track
+            </h1>
         </div>
         <hr>
         <div class="col-12">
             <div class="input-group">
                 <input #instance="ngbTypeahead" id="typeahead-basic" type="text" class="form-control"
                     [(ngModel)]="seriesSearch" [ngbTypeahead]="search" placeholder="Search any show..."
-                    [resultTemplate]="rt" [inputFormatter]="formatter" (focus)="focus$.next($any($event).target.value)" (selectItem)="selectItem($event)"
-                    (click)="click$.next($any($event).target.value)">
+                    [resultTemplate]="rt" [inputFormatter]="formatter" (focus)="focus$.next($any($event).target.value)"
+                    (selectItem)="selectItem($event)" (click)="click$.next($any($event).target.value)">
                 <div class="btn btn-primary" (click)="saveSeriesSearch()"><fa-icon [icon]="faAdd"></fa-icon></div>
             </div>
         </div>
     </div>
 
     <div class="row mt-3">
-        <div class="col-12" *ngFor="let show of selectedShows">
+        <div class="col-12" *ngFor="let show of selectedShows | slice: (page-1) * pageSize : page * pageSize;">
             <app-series [show]="show" (remove)="removeShow($event)"></app-series>
         </div>
+        <ngb-pagination *ngIf="selectedShows.length>pageSize" [(page)]="page" [pageSize]="pageSize" [collectionSize]="selectedShows.length" />
     </div>
 </div>

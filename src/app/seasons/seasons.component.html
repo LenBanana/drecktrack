@@ -16,7 +16,7 @@
         <div class="col-12">
             <div ngbAccordion class="bg-dark">
                 <div ngbAccordionItem *ngFor="let season of show.seasons; let i = index;" class="bg-dark border-dark">
-                    <h1 ngbAccordionHeader class="bg-dark" (contextmenu)="onRightClick($event, season)">
+                    <h1 ngbAccordionHeader class="bg-dark mb-0" (contextmenu)="onRightClick($event, season)">
                         <button ngbAccordionButton class="bg-dark">
                             <span [class.text-success]="season.episodes.length>0&&allWatched(season)" [class.text-light]="!allWatched(season)" [class.text-primary]="season.episodes.length==0">Season {{i+1}} - ({{season.episodes.length}} Episodes)</span>
                         </button>

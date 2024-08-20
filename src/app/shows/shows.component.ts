@@ -1,6 +1,6 @@
-import { Component, EventEmitter, Output, ViewChild } from '@angular/core';
-import { debounceTime, distinctUntilChanged, filter, map, merge, Observable, of, OperatorFunction, Subject, switchMap } from 'rxjs';
-import { NgbTypeahead, NgbTypeaheadModule, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
+import { Component, EventEmitter, OnDestroy, Output, ViewChild } from '@angular/core';
+import { debounceTime, distinctUntilChanged, filter, map, merge, Observable, of, OperatorFunction, Subject, Subscription, switchMap } from 'rxjs';
+import { NgbPaginationModule, NgbTypeahead, NgbTypeaheadModule, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule } from '@angular/forms';
 import { CommonModule, JsonPipe } from '@angular/common';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -12,32 +12,45 @@ import { SeriesComponent } from '../series/series.component';
 import { SavedShow } from '../../interfaces/show';
 import { SeriesSearch } from '../../interfaces/series-search';
 import { placeholderImage } from '../../config/configs';
+import { KonamiService } from '../../konami/konami.service';
 
 
 @Component({
   selector: 'app-shows',
   standalone: true,
-  imports: [RouterOutlet, SeriesComponent, NgbTypeaheadModule, FormsModule, JsonPipe, CommonModule, FontAwesomeModule],
+  imports: [RouterOutlet, SeriesComponent, NgbTypeaheadModule, FormsModule, JsonPipe, CommonModule, FontAwesomeModule, NgbPaginationModule],
   templateUrl: './shows.component.html',
   styleUrl: './shows.component.scss'
 })
-export class ShowsComponent {
-  faAdd = faAdd;
+export class ShowsComponent implements OnDestroy {
 
 @ViewChild('instance', { static: true }) instance!: NgbTypeahead;
 
-constructor(public seriesService: SeriesService, public storageService: ShowStorageService) {
-  this.selectedShows = storageService.getShows();
-}
-
+subscriptions = new Subscription();
 selectedShows: SavedShow[] = [];
-
 seriesSearch: SeriesSearch | string = '';
 seriesSearches: SeriesSearch[] = [];
 searchTimeout: any;
-
 focus$ = new Subject<string>();
 click$ = new Subject<string>();
+
+faAdd = faAdd;
+
+// Pagination
+page = 1;
+pageSize = 5;
+
+constructor(public seriesService: SeriesService, public storageService: ShowStorageService, public konamiService: KonamiService) {
+  this.selectedShows = storageService.getShows();
+  this.subscriptions.add(this.konamiService.konamiCodeEnteredSubject.subscribe(() => {
+    storageService.exportJsonAsFile();
+  }));
+}
+
+ngOnDestroy() {
+  console.log('ngOnDestroy');
+  this.subscriptions.unsubscribe();
+}
 
 search: OperatorFunction<string, readonly SeriesSearch[]> = (text$: Observable<string>) => {
   const debouncedText$ = text$.pipe(debounceTime(200), distinctUntilChanged());

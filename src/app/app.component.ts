@@ -14,4 +14,6 @@ import { SeriesComponent } from './series/series.component';
   styleUrl: './app.component.scss'
 })
 export class AppComponent {
+
+  constructor() {}
 }

@@ -24,3 +24,15 @@
         opacity: 1;
     }
 }
+
+// Only if screen is mobile
+@media (max-width: 810px) {
+    .h-25vh {
+        max-height: 25vh;
+    }
+    
+    .inherit-height {
+        max-height: inherit;
+    }
+    
+}

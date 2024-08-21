@@ -36,27 +36,30 @@ export class SeasonsComponent {
       const show = this.storageService.getShow(this.id);
 
       if (show) {
-        show.seasons.forEach(season => {
-          if (typeof season.id === 'number' && season.episodes.length === 0) {
-            this.episodeService.searchEpisodes(season.id).subscribe(episodes => {
-              episodes.forEach(episode => {
-                season.episodes.push(new SavedEpisode(
-                  episode.id,
-                  episode.name,
-                  episode.summary,
-                  episode.image?.medium ?? placeholderImage,
-                  false,
-                  episode.runtime
-                ));
-              });
-            });
-          }
-        });
-
         this.show = show;
-        this.storageService.saveShow(this.show);
       }
     });
+  }
+
+  fetchEpisodes(season: SavedSeason, watched = false) {
+    if (typeof season.id === 'number' && season.episodes.length < season.episodeCount) {
+      this.episodeService.searchEpisodes(season.id).subscribe(episodes => {
+        episodes.forEach(episode => {
+          season.episodes.push(new SavedEpisode(
+            episode.id,
+            episode.name,
+            episode.summary,
+            episode.image?.medium ?? placeholderImage,
+            watched,
+            episode.runtime
+          ));
+        });
+      }, error => {
+        console.error(error);
+      }, () => {
+        this.storageService.saveShow(this.show);
+      });
+    }
   }
 
   saveWatchedEpisode(episode: SavedEpisode) {
@@ -69,6 +72,15 @@ export class SeasonsComponent {
   }
 
   setAllWatched() {
+    if (!this.selectedSeason) {
+      return;
+    }
+
+    if (this.selectedSeason.episodeCount > 0 && this.selectedSeason.episodes.length < this.selectedSeason.episodeCount) {
+      this.fetchEpisodes(this.selectedSeason, true);
+      return;
+    }
+
     const allWatched = this.selectedSeason.episodes.every(episode => episode.watched);
 
     this.selectedSeason.episodes.forEach(episode => {
@@ -77,7 +89,7 @@ export class SeasonsComponent {
 
     this.storageService.saveShow(this.show);
   }
-  
+
   addEpisode() {
     this.selectedSeason.episodes.push(new SavedEpisode(crypto.randomUUID(), 'Newly added', null, placeholderImageHorizontal, false, 0));
   }

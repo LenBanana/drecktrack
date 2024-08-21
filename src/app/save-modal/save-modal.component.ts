@@ -1,4 +1,4 @@
-import { Component, ElementRef, inject, OnDestroy, TemplateRef, ViewChild } from '@angular/core';
+import { Component, ElementRef, inject, OnDestroy, ViewChild } from '@angular/core';
 import { ModalDismissReasons, NgbDatepickerModule, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { Subscription } from 'rxjs';
 import { ShowStorageService } from '../../storage/storage.service';

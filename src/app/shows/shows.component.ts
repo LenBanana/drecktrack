@@ -1,4 +1,4 @@
-import { Component, OnDestroy, ViewChild } from '@angular/core';
+import { Component, OnDestroy, signal, ViewChild, WritableSignal } from '@angular/core';
 import { debounceTime, distinctUntilChanged, filter, map, merge, Observable, of, OperatorFunction, Subject, Subscription, switchMap } from 'rxjs';
 import { NgbPaginationModule, NgbToastModule, NgbTypeahead, NgbTypeaheadModule, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule } from '@angular/forms';
@@ -29,7 +29,7 @@ export class ShowsComponent implements OnDestroy {
 
   subscriptions = new Subscription();
   selectedShows: SavedShow[] = [];
-  seriesSearch: SeriesSearch | string = '';
+  seriesSearch: WritableSignal<SeriesSearch | string> = signal('');
   seriesSearches: SeriesSearch[] = [];
   searchTimeout: any;
   focus$ = new Subject<string>();
@@ -58,7 +58,7 @@ export class ShowsComponent implements OnDestroy {
   }
 
   search: OperatorFunction<string, readonly SeriesSearch[]> = (text$: Observable<string>) => {
-    const debouncedText$ = text$.pipe(debounceTime(200), distinctUntilChanged());
+    const debouncedText$ = text$.pipe(debounceTime(500), distinctUntilChanged());
     const clicksWithClosedPopup$ = this.click$.pipe(filter(() => !this.instance.isPopupOpen()));
     const inputFocus$ = this.focus$;
 
@@ -83,7 +83,7 @@ export class ShowsComponent implements OnDestroy {
   }
 
   selectItem(item: NgbTypeaheadSelectItemEvent<SeriesSearch>) {
-    this.seriesSearch = item.item;
+    this.seriesSearch.set(item.item);
     this.saveSeriesSearch();
   }
 
@@ -97,11 +97,11 @@ export class ShowsComponent implements OnDestroy {
   formatter = (x: SeriesSearch) => x.show?.name;
 
   searchSeries(): void {
-    if (typeof this.seriesSearch !== 'string') {
+    if (typeof this.seriesSearch() !== 'string') {
       return;
     }
 
-    const searchTerm = this.seriesSearch.trim();
+    const searchTerm = (this.seriesSearch() as string).trim();
     if (searchTerm.length < 2) {
       this.seriesSearches = [];
       return;
@@ -116,22 +116,24 @@ export class ShowsComponent implements OnDestroy {
 
   saveSeriesSearch() {
     let show: SavedShow = new SavedShow();
-    if (typeof this.seriesSearch === 'string') {
-      if (this.seriesSearch.length < 1) {
+    if (typeof this.seriesSearch() === 'string') {
+      if ((this.seriesSearch() as string).length < 1) {
         return;
       }
 
       show.id = crypto.randomUUID();
-      show.name = this.seriesSearch;
+      show.name = this.seriesSearch() as string;
       show.image = placeholderImage;
     } else {
-      show.id = this.seriesSearch.show.id;
-      show.name = this.seriesSearch.show.name;
-      show.description = this.seriesSearch.show.summary;
-      show.image = this.seriesSearch.show.image.original;
+      const series = this.seriesSearch() as SeriesSearch;
+      show.id = series.show.id;
+      show.name = series.show.name;
+      show.description = series.show.summary;
+      show.image = series.show.image.original;
     }
 
-    this.seriesSearch = '';
+    this.seriesSearch.set('');
+    console.log(this.seriesSearch);
     if (this.storageService.exists(show)) {
       alert('Show already exists in your list');
       return;

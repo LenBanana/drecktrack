@@ -46,7 +46,9 @@ export class SeriesComponent implements OnChanges {
           season.name,
           season.summary,
           season.image?.medium ?? placeholderImage,
-          []));
+          [],
+          season.episodeOrder,
+          season.premiereDate != null));
 
         this.storageService.saveShow(this.show);
       });
@@ -75,7 +77,9 @@ export class SeriesComponent implements OnChanges {
       'New Season',
       '',
       placeholderImage,
-      []
+      [],
+      0,
+      true
     ));
 
     this.storageService.saveShow(this.show);
@@ -88,7 +92,7 @@ export class SeriesComponent implements OnChanges {
 
   renameShow() {
     this.show.renaming = true;
-    setTimeout(() => {      
+    setTimeout(() => {
       const showInput = document.getElementById('show-input-' + this.show.id) as HTMLInputElement;
       showInput?.focus();
       showInput?.select();

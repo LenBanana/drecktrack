@@ -30,13 +30,15 @@ export function getProgress(show: SavedShow): number {
     let watched = 0;
     let total = 0;
 
-    show.seasons.forEach(season => {
-        season.episodes.forEach(episode => {
-            total++;
-            if (episode.watched) {
-                watched++;
-            }
-        });
+    show.seasons.forEach(season => {        
+        if (season.episodes.length > 0) {
+            season.episodes.forEach(episode => {
+                total++;
+                if (episode.watched) {
+                    watched++;
+                }
+            })
+        } else { total += season.premiered ? season.episodeCount : 0; }
     });
 
     return total === 0 ? 0 : Math.round((watched / total) * 100);
@@ -48,14 +50,18 @@ export class SavedSeason {
     description: null | string;
     image: string;
     episodes: SavedEpisode[];
+    episodeCount: number;
+    premiered: boolean;
     deleting: boolean = false;
 
-    constructor(id: number | string, name: string, description: null | string, image: string, episodes: SavedEpisode[]) {
+    constructor(id: number | string, name: string, description: null | string, image: string, episodes: SavedEpisode[], episodeCount: number, premiered: boolean) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.image = image;
         this.episodes = episodes;
+        this.episodeCount = episodeCount;
+        this.premiered = premiered;
     }
 }
 

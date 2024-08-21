@@ -29,11 +29,11 @@
 
     <div class="row mt-3">
         <div class="col-12"
-            *ngFor="let show of filterSelectedShows(seriesSearch) | slice: (page-1) * pageSize : page * pageSize;">
+            *ngFor="let show of filterSelectedShows(seriesSearch()) | slice: (page-1) * pageSize : page * pageSize;">
             <app-series [show]="show" (remove)="removeShow($event)"></app-series>
         </div>
-        <ngb-pagination *ngIf="filterSelectedShows(seriesSearch).length>pageSize" [(page)]="page" [pageSize]="pageSize"
-            [collectionSize]="filterSelectedShows(seriesSearch).length" />
+        <ngb-pagination *ngIf="filterSelectedShows(seriesSearch()).length>pageSize" [(page)]="page" [pageSize]="pageSize"
+            [collectionSize]="filterSelectedShows(seriesSearch()).length" />
     </div>
 </div>
 <app-save-modal #saveModal></app-save-modal>

@@ -28,9 +28,7 @@ body {
 .image-container>.overlay {
   position: absolute;
   bottom: 0;
-  background: rgb(0, 0, 0);
-  background: rgba(0, 0, 0, 0.5);
-  /* Black see-through */
+  background: rgba(0, 0, 0, 0.75);
   color: #f1f1f1;
   width: 100%;
   transition: .5s ease;
@@ -39,7 +37,9 @@ body {
   padding: 20px;
   text-align: center;
   height: 100%;
-  line-height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-size: 28px;
 }
 

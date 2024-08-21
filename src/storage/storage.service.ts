@@ -1,14 +1,28 @@
 import { Injectable } from '@angular/core';
 import { SavedShow } from '../interfaces/show';
+import { Subject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ShowStorageService {
 
+  showsOverwritten: Subject<SavedShow[]> = new Subject<SavedShow[]>();
+
   constructor() { }
 
   key = 'savedShows';
+  shareKey = 'sharedShows';
+
+  getShareId(): string {
+    const id = localStorage.getItem(this.shareKey);
+    if (id) {
+      return id.toUpperCase();
+    }
+    const newId = Math.random().toString(36).substring(2).toUpperCase();
+    localStorage.setItem(this.shareKey, newId);
+    return newId;
+  }
 
   saveShow(show: SavedShow) {
     const shows = this.getShows();
@@ -21,6 +35,11 @@ export class ShowStorageService {
     }
 
     localStorage.setItem(this.key, JSON.stringify(shows));
+  }
+
+  saveShows(shows: SavedShow[]) {
+    localStorage.setItem(this.key, JSON.stringify(shows));
+    this.showsOverwritten.next(shows);
   }
 
   exists(show: SavedShow): boolean {
@@ -45,9 +64,36 @@ export class ShowStorageService {
     localStorage.setItem(this.key, JSON.stringify(shows));
   }
 
-  exportJsonAsFile() {
+  getJson() {
     const shows = this.getShows();
-    const data = JSON.stringify(shows, null, 2);
+    return JSON.stringify(shows, null, 2);
+  }
+
+  copyToClipboard(): SavedShow[] {
+    const data = this.getJson();
+    navigator.clipboard.writeText(data);
+    return JSON.parse(data);
+  }
+
+  async getFromClipboard(): Promise<SavedShow[]> {
+    const datas = await navigator.clipboard.readText().then(data => {
+      try {
+        const shows = JSON.parse(data);
+        if (Array.isArray(shows) && shows.every(s => s.id && s.name && s.seasons)) {
+          return shows;
+        } else {
+          alert('Invalid data');
+        }
+      } catch (e) {
+        alert('Invalid data');
+      }
+      return [];
+    });
+    return datas;
+  }
+
+  exportJsonAsFile() {
+    const data = this.getJson();
     const blob = new Blob([data], { type: 'application/json' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');

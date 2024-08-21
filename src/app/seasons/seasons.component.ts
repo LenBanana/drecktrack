@@ -45,7 +45,8 @@ export class SeasonsComponent {
                   episode.name,
                   episode.summary,
                   episode.image?.medium ?? placeholderImage,
-                  false
+                  false,
+                  episode.runtime
                 ));
               });
             });
@@ -53,6 +54,7 @@ export class SeasonsComponent {
         });
 
         this.show = show;
+        this.storageService.saveShow(this.show);
       }
     });
   }
@@ -77,7 +79,7 @@ export class SeasonsComponent {
   }
   
   addEpisode() {
-    this.selectedSeason.episodes.push(new SavedEpisode(crypto.randomUUID(), 'Newly added', null, placeholderImageHorizontal, false));
+    this.selectedSeason.episodes.push(new SavedEpisode(crypto.randomUUID(), 'Newly added', null, placeholderImageHorizontal, false, 0));
   }
 
   allWatched(season: SavedSeason): boolean {

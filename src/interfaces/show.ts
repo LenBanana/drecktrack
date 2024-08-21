@@ -1,3 +1,13 @@
+export class ShowShare {
+    shareId: string;
+    shows: SavedShow[];
+
+    constructor(shareId: string, shows: SavedShow[]) {
+        this.shareId = shareId;
+        this.shows = shows;
+    }
+}
+
 export class SavedShow {
     id: number | string;
     name: string;
@@ -56,12 +66,14 @@ export class SavedEpisode {
     image: string;
     watched: boolean;
     renaming: boolean = false;
+    runtime: number;
 
-    constructor(id: number | string, name: string, description: null | string, image: string, watched: boolean) {
+    constructor(id: number | string, name: string, description: null | string, image: string, watched: boolean, runtime: number) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.image = image;
         this.watched = watched;
+        this.runtime = runtime;
     }
 }

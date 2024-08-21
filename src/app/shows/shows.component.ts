@@ -12,19 +12,20 @@ import { SeriesComponent } from '../series/series.component';
 import { SavedShow } from '../../interfaces/show';
 import { SeriesSearch } from '../../interfaces/series-search';
 import { placeholderImage } from '../../config/configs';
-import { KonamiService } from '../../konami/konami.service';
+import { SaveModalComponent } from "../save-modal/save-modal.component";
 
 
 @Component({
   selector: 'app-shows',
   standalone: true,
-  imports: [RouterOutlet, SeriesComponent, NgbTypeaheadModule, FormsModule, JsonPipe, CommonModule, FontAwesomeModule, NgbPaginationModule, NgbToastModule],
+  imports: [RouterOutlet, SeriesComponent, NgbTypeaheadModule, FormsModule, JsonPipe, CommonModule, FontAwesomeModule, NgbPaginationModule, NgbToastModule, SaveModalComponent],
   templateUrl: './shows.component.html',
   styleUrl: './shows.component.scss'
 })
 export class ShowsComponent implements OnDestroy {
 
   @ViewChild('instance', { static: true }) instance!: NgbTypeahead;
+  @ViewChild(SaveModalComponent) saveModal!: SaveModalComponent;
 
   subscriptions = new Subscription();
   selectedShows: SavedShow[] = [];
@@ -40,16 +41,20 @@ export class ShowsComponent implements OnDestroy {
   page = 1;
   pageSize = 5;
 
-  constructor(public seriesService: SeriesService, public storageService: ShowStorageService, public konamiService: KonamiService) {
+  constructor(public seriesService: SeriesService, public storageService: ShowStorageService) {
     this.selectedShows = storageService.getShows();
-    this.subscriptions.add(this.konamiService.konamiCodeEnteredSubject.subscribe(() => {
-      storageService.exportJsonAsFile();
-    }));
+
+    storageService.showsOverwritten.subscribe((shows) => {
+      this.selectedShows = shows;
+    });
   }
 
   ngOnDestroy() {
-    console.log('ngOnDestroy');
     this.subscriptions.unsubscribe();
+  }
+
+  openModal() {
+    this.saveModal.open();
   }
 
   search: OperatorFunction<string, readonly SeriesSearch[]> = (text$: Observable<string>) => {

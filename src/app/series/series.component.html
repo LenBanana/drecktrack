@@ -12,18 +12,15 @@
             </div>
         </div>
         <div class="col-9 col-md-11">
-            <div class="card-body pb-0 pt-1" style="height: 120px; overflow: auto;">
+            <div class="card-body pb-1 pt-1" style="overflow: auto; max-height: 160px;">
                 <h3 class="card-title" *ngIf="!show.renaming">{{ show.name }} - {{show.seasons.length}} Seasons</h3>
                 <input id="show-input-{{show.id}}" *ngIf="show.renaming" type="text" class="form-control bg-dark text-light border-secondary mb-2" [(ngModel)]="show.name"
                     (blur)="saveName()" (keyup.enter)="saveName()">
                 <p class="card-text" [innerHTML]="show.description"></p>
             </div>
-            <div class="card-footer bg-transparent">
-                <div class="progress bg-darkbg" *ngIf="getProgress(show)>0">
-                    <div class="progress-bar bg-primary" role="progressbar" [style.width]="getProgress(show) + '%'"
-                        aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">{{getProgress(show)}}%</div>
-                </div>
-                <p class="text-center" *ngIf="getProgress(show)==0">Not started yet...</p>
+            <div class="progress bg-darkbg show-progress" *ngIf="getProgress(show)>0">
+                <div class="progress-bar" role="progressbar" [style.width]="getProgress(show) + '%'" [class.bg-primary]="getProgress(show)<100" [class.bg-success]="getProgress(show)>=100"
+                    aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
             </div>
         </div>
     </div>

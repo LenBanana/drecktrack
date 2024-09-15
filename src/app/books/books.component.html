@@ -1,0 +1,57 @@
+<div class="container mt-3">
+    <!-- ISBN Search Input -->
+    {{bookUserId}}
+    <div class="input-group mb-3">
+        <input type="text" class="form-control bg-dark text-light border-secondary" placeholder="Enter ISBN..."
+            [(ngModel)]="isbnTerm">
+        <button class="btn btn-secondary" (click)="fileInput.click()"><fa-icon
+                [icon]="fileSearchIcon"></fa-icon></button>
+        <input type="file" #fileInput (change)="onFileSelected($event)" accept="image/*" style="display: none;">
+        <button class="btn btn-primary" (click)="isbnTextSearch()"><fa-icon [icon]="searchIcon"></fa-icon></button>
+    </div>
+
+    <!-- Template for ISBN Search Results -->
+    <ng-template #rt let-r="result" let-t="term">
+        <ngb-highlight [result]="r.isbn13" [term]="t"></ngb-highlight>
+    </ng-template>
+
+    <!-- Display Selected Book Details -->
+    <div *ngIf="selectedBook">
+        <ng-container *ngTemplateOutlet="bookCard; context: { book: selectedBook }"></ng-container>
+    </div>
+
+    <hr>
+
+    <div *ngIf="savedBooks && savedBooks.length > 0">
+        <h2 class="text-light mt-3">My Collection</h2>
+        <div class="row">
+            <div *ngFor="let book of savedBooks" class="col-md-4">
+                <ng-container *ngTemplateOutlet="bookCard; context: { book: book }"></ng-container>
+            </div>
+        </div>
+    </div>
+
+    <ng-template #bookCard let-book="book">
+        <div *ngIf="book" class="card bg-dark text-white mt-3 shadow-sm border-secondary">
+            <div class="row g-0">
+                <div class="col-md-4">
+                    <img *ngIf="book.image" [src]="book.image" class="img-fluid rounded-start" alt="Book Cover"
+                        style="object-fit: cover;">
+                </div>
+                <div class="col-md-8">
+                    <div class="card-body">
+                        <h2 class="card-title">{{ book.title }} - {{ book.author }}</h2>
+                        <p class="card-text text-truncate">{{ book.description }}</p>
+                        <button *ngIf="notInCollection(book)" class="btn btn-outline-light mt-3" (click)="addBook()">Add to Collection</button>
+                        <button *ngIf="inCollection(book)" class="btn btn-outline-danger mt-3" (click)="removeBook(book)">Remove from Collection</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </ng-template>
+
+
+
+    <!-- Display Error Message if any -->
+    <div *ngIf="errorMessage" class="alert alert-danger mt-3">{{ errorMessage }}</div>
+</div>

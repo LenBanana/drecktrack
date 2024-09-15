@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { baseApiUrl } from '../../../config/configs';
+import { baseShowApiUrl } from '../../../config/configs';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { SeasonSearch } from '../../../interfaces/season-search';
@@ -9,7 +9,7 @@ import { SeasonSearch } from '../../../interfaces/season-search';
 })
 export class SeasonsService {
 
-  private apiUrl = baseApiUrl + 'shows/';
+  private apiUrl = baseShowApiUrl + 'shows/';
 
   constructor(private http: HttpClient) { }
 

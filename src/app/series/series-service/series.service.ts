@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { baseApiUrl } from '../../../config/configs';
+import { baseShowApiUrl } from '../../../config/configs';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { SeriesSearch } from '../../../interfaces/series-search';
@@ -9,7 +9,7 @@ import { SeriesSearch } from '../../../interfaces/series-search';
 })
 export class SeriesService {
 
-  private apiUrl = baseApiUrl + 'search/shows?q=';
+  private apiUrl = baseShowApiUrl + 'search/shows?q=';
 
   constructor(private http: HttpClient) { }
 

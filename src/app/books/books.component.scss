@@ -1,0 +1,25 @@
+.card {
+    margin: auto;
+    background-color: #2a2a2a; /* Custom dark color if needed */
+}
+
+.card img {
+    max-height: 200px;
+    width: 100%;
+    object-fit: cover;
+    border-radius: 0.5rem 0 0 0.5rem; /* Smooth corners for dark themes */
+}
+
+.card-body {
+    padding: 1rem;
+    color: #e0e0e0; /* Light text color for readability */
+}
+
+.btn-outline-light {
+    border-color: #6c757d;
+    color: #e0e0e0;
+}
+
+.btn-outline-light:hover {
+    background-color: #6c757d; /* Hover effect to match the theme */
+}

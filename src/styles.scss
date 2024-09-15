@@ -5,6 +5,30 @@ body {
   height: 100%;
 }
 
+/* width */
+::-webkit-scrollbar {
+  width: 10px;
+  scrollbar-width: none; /* For Firefox */
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: transparent;
+  border: 1px solid rgba(34, 34, 34, 0.25);
+  border-radius: 5px;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 5px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #444;
+}
+
 body {
   margin: 0;
   font-family: Roboto, "Helvetica Neue", sans-serif;
@@ -88,6 +112,19 @@ body {
   animation: fadeOutToBottom 0.25s linear forwards;
   animation-delay: 2.5s;
 }
+
+// Right click menu styles
+.mat-menu-panel,.cdk-focused,.cdk-program-focused {
+  background-color: #464a5e !important;
+  border: none !important;
+  outline:none !important;
+}
+.mat-menu-content {
+  padding: 0 !important;
+}
+
+
+// Animations
 
 @keyframes grow {
   from {

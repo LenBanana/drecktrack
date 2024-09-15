@@ -13,6 +13,7 @@ import { SavedShow } from '../../interfaces/show';
 import { SeriesSearch } from '../../interfaces/series-search';
 import { placeholderImage } from '../../config/configs';
 import { SaveModalComponent } from "../save-modal/save-modal.component";
+import { BooksComponent } from "../books/books.component";
 
 
 @Component({

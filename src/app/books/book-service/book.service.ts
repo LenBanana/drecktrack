@@ -27,26 +27,45 @@ export class BookService {
     localStorage.setItem('userId', userId);
   }
 
-  async extractISBN(image: File): Promise<BookSearch | null> {
+  async extractISBN(image: File): Promise<BookSearch[] | null> {
     try {
       const result = await Tesseract.recognize(image, 'eng', {
         logger: (m) => console.log(m) // Optional: Log progress
       });
 
-      // Log all text found in the image
-      console.log('Text found in image:', result.data.text);
+      // Clean up OCR output: remove unexpected characters, fix common issues
+      let cleanedText = result.data.text
+        .replace(/ISBN[-\s]*13[:-]/gi, 'ISBN-13:')  // Normalize ISBN-13 formatting
+        .replace(/ISBN[-\s]*10[:-]/gi, 'ISBN-10:')  // Normalize ISBN-10 formatting
+        .replace(/[;:]/g, ':')                      // Replace semicolons with colons
+        .replace(/[-]+/g, '-')                      // Reduce multiple hyphens to one
+        .replace(/[^a-zA-Z0-9\s:-]/g, '')           // Remove unexpected characters
+        .replace(/\s+/g, ' ');                      // Normalize multiple spaces to one
 
-      const isbnRegex = /\bISBN[- ]?(?:97[89])?[- ]?\d{1,5}[- ]?\d{1,7}[- ]?\d{1,7}[- ]?\d\b/;
-      const match = result.data.text.match(isbnRegex);
-      if (!match) {
-        console.error('No ISBN found in image');
+
+      // Log all text found in the image
+      console.log('Text found in image:', cleanedText);
+
+      const isbnRegex = /\d{1,3}-\d{1,3}-\d{5,6}-\d{1,2}(-\d{0,1})?/g;
+      const matches = cleanedText.match(isbnRegex);
+
+      console.log('Matches:', matches);
+
+      // Select the first valid ISBN found
+      let selectedISBN = null;
+      if (matches) {
+        selectedISBN = matches.find((isbn) => isbn.length >= 10);
+      }
+
+      if (!selectedISBN) {
+        console.error('No valid ISBN found after cleaning');
         return null;
       }
 
-      // Extract numbers from the match
-      const isbn = match[0].replace(/\D/g, '');
+      console.log('Selected ISBN:', selectedISBN);
+
       return new Promise((resolve, reject) => {
-        this.searchBookByISBN(isbn).subscribe({
+        this.searchBookByISBN(selectedISBN).subscribe({
           next: (bookSearch) => resolve(bookSearch),
           error: (err) => {
             console.error('Error fetching book details:', err);
@@ -54,17 +73,17 @@ export class BookService {
           }
         });
       });
-      
+
     } catch (error) {
       console.error('Error during OCR processing:', error);
       return null;
     }
   }
 
-  searchBookByISBN(isbn: string): Observable<BookSearch> {
+  searchBookByISBN(isbn: string): Observable<BookSearch[]> {
     const url = `${baseBookApiUrl}${isbn}`;
-    return this.http.get<BookSearch>(url);
-  }  
+    return this.http.get<BookSearch[]>(url);
+  }
 
   saveBook(book: BookSearch): Observable<BookSearch> {
     book.userId = this.getUserId();

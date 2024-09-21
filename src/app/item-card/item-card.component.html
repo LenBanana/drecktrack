@@ -1,6 +1,6 @@
 <div class="card book-card bg-dark text-light shadow-sm h-100" style="height: 225px;"
   (contextmenu)="onRightClick($event)" (dblclick)="onRightClick($event)">
-  <div class="row my-auto g-0">
+  <div class="row my-auto g-0 h-100">
     <div class="col-5 col-md-3 h-100">
       <div class="position-relative h-100">
         <!-- Overlay on the thumbnail based on status -->
@@ -10,33 +10,13 @@
         <div *ngIf="status === CollectibleStatus.InProgress" class="thumbnail-overlay rounded-start">
           <fa-icon [icon]="faGlasses" class="overlay-icon text-primary"></fa-icon>
         </div>
-        <img [src]="getCoverImageUrl()" class="rounded-start book-thumbnail h-100 w-100" style="max-height: 100%;"
+        <img [src]="item.coverImageUrl" class="rounded-start book-thumbnail h-100 w-100" style="max-height: 100%;"
           alt="Book Cover" />
-        <!-- Page count input -->
-        <div class="position-absolute top-0 start-50 translate-middle-x" style="width: 85%;">
-          <div *ngIf="getCurrentPage()">
-            <div class="input-group">
-              <input id="pageCount" class="form-control form-control-sm bg-transparent border-0 rounded-0 text-light"
-                style="background-color: rgba(0,0,0,.75) !important; border-bottom-left-radius: .25rem !important;direction: rtl;"
-                type="number" max="{{getPageCount()}}" min="1" (change)="changeCurrentPage($event)"
-                [value]="getCurrentPage()" placeholder="Enter page count" />
-              <button
-                class="btn btn-sm btn-outline-light bg-transparent border-0 rounded-0 text-light border-start border-secondary"
-                style="background-color: rgba(0,0,0,.75) !important; border-bottom-right-radius: .25rem !important;">
-                {{getPageCount()}} <fa-icon [icon]="faBookOpen" class="text-light"></fa-icon>
-              </button>
-            </div>
-          </div>
-        </div>
+        <!-- Book Card -->
+        <app-book-card *ngIf="inCollection&&isBook(item)" [item]="item" (save)="changeItem(undefined)"></app-book-card>
 
-        <!-- Authors -->
-        <div *ngIf="getAuthors() !== undefined && (getAuthors()?.length ?? 0) > 0"
-          class="position-absolute bottom-0 start-50 translate-middle-x rounded-top text-center text-truncate"
-          style="background-color: rgba(0,0,0,.75) !important; width: 85%;">
-          <small class="text-light">
-            {{ getAuthors() }}
-          </small>
-        </div>
+        <!-- Show Card -->
+        <app-show-card *ngIf="inCollection&&isShow(item)" [item]="item" (save)="changeItem(undefined)"></app-show-card>
       </div>
     </div>
     <div class="col-7 col-md-9">
@@ -47,9 +27,9 @@
           <!-- Spacer to push buttons to the bottom -->
           <div class="position-absolute bottom-0 end-0 mb-2 me-2">
             <!-- Status selector as segmented buttons -->
-            <div *ngIf="inCollection" class="status-selector">
+            <div *ngIf="inCollection&&isBook(item)" class="status-selector">
               <div class="btn-group" role="group" aria-label="Status">
-                <button *ngFor="let s of statuses" type="button" class="btn"
+                <button *ngFor="let s of statuses" type="button" class="btn text-center"
                   [ngClass]="status !== s.value ? s.btnClass : s.btnFillClass" (click)="changeItem(s.value)">
                   <fa-icon [icon]="s.icon" [class.me-1]="!isOnMobile"></fa-icon>
                   <span *ngIf="!isOnMobile">{{ s.label }}</span>
@@ -78,13 +58,10 @@
           </div>
 
           <!-- Title, Description, Subtitle -->
-          <h5 class="card-title">{{ getTitle() }}</h5>
-          <p class="card-text" *ngIf="getDescription() !== undefined && getDescription()!.length > 0">
-            {{ getDescription() }}
+          <h5 class="card-title"><span [innerHTML]="item.title"></span></h5>
+          <p class="card-text" *ngIf="item.description !== undefined &&item.description!.length > 0">
+            <span [innerHTML]="item.description"></span>
           </p>
-          <h5 class="card-text" *ngIf="!getDescription() || getDescription()?.length == 0">
-            {{ getSubtitle() }}
-          </h5>
         </div>
       </div>
     </div>

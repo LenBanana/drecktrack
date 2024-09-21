@@ -3,9 +3,9 @@
     <div class="input-group mb-3">
         <input id="typeahead-basic" type="text" class="form-control bg-dark text-light border-secondary"
             [(ngModel)]="searchTerm" [ngbTypeahead]="search" [resultTemplate]="rt" [inputFormatter]="formatter"
-            (selectItem)="selectItem($event)" placeholder="Search for books..." />
+            (selectItem)="selectItem($event)" placeholder="Search for {{currentItemType}}s..." />
         <!-- Clear selection button -->
-        <button class="btn btn-danger" *ngIf="selectedBooks && selectedBooks.length > 0" (click)="clearSelection()">
+        <button class="btn btn-danger" *ngIf="selectedItems && selectedItems.length > 0" (click)="clearSelection()">
             <fa-icon [icon]="clearIcon"></fa-icon>
         </button>
 
@@ -15,22 +15,24 @@
 
     <!-- Typeahead result template -->
     <ng-template #rt let-r="result" let-t="term">
-        <img *ngIf="r.volumeInfo.imageLinks && r.volumeInfo.imageLinks.smallThumbnail"
-            [src]="r.volumeInfo.imageLinks.smallThumbnail" class="me-1" style="width: 48px" />
-        <ngb-highlight [result]="r.volumeInfo.title" [term]="t"></ngb-highlight>
+        <img *ngIf="r.collectibleItem.coverImageUrl"
+            [src]="r.collectibleItem.coverImageUrl" class="me-1" style="width: 48px" />
+        <ngb-highlight [result]="r.collectibleItem.title" [term]="t"></ngb-highlight>
     </ng-template>
+    
+    <!-- Display selected books -->
+    <div *ngIf="selectedItems.length > 0">
+        <h2 class="text-light mt-3">Search Results</h2>
+        <div *ngFor="let item of selectedItems" class="mb-2">
+            <div style="height: 200px;">
+                <app-item-card [item]="item.collectibleItem" [inCollection]="inCollection(item)" [status]="getItemStatus(item)"
+                (save)="saveItem(item)" (delete)="deleteBook(item.collectibleItem.id)"></app-item-card>
+            </div>
+        </div>
+    </div>
 
     <!-- Error message -->
     <div *ngIf="searchFailed" class="alert alert-danger mt-3">Search failed</div>
-
-    <!-- Display selected books -->
-    <div *ngIf="selectedBooks.length > 0">
-        <h2 class="text-light mt-3">Search Results</h2>
-        <div *ngFor="let book of selectedBooks" class="mb-2">
-            <app-book-card [book]="book" [inCollection]="inCollection(book)" [status]="getBookStatus(book)"
-                (save)="saveBook(book)" (delete)="deleteBook(book.id)"></app-book-card>
-        </div>
-    </div>
 
     <!-- Display saved books -->
     <div>
@@ -54,11 +56,11 @@
             </div>
         </div>
 
-        <div class="row" *ngIf="savedBooks.length > 0">
-            <div class="col-12 mb-2 col-md-6 mb-3" *ngFor="let item of savedBooks">
-                <app-book-card [book]="item.collectibleItem" [inCollection]="true" [status]="item.status"
-                    (delete)="deleteBook(item.collectibleItemId)"
-                    (searchByTitle)="setTitle($event)"></app-book-card>
+        <div class="row" *ngIf="savedItems.length > 0">
+            <div class="col-12 mb-2 col-md-6 mb-3" *ngFor="let item of savedItems">
+                <app-item-card [item]="item.collectibleItem" [inCollection]="true" [status]="item.status"
+                    (delete)="deleteBook(item.collectibleItem.id)">
+                    (searchByTitle)="setTitle($event)"></app-item-card>
             </div>
 
             <!-- Pagination -->
@@ -69,7 +71,7 @@
             </div>
         </div>
     </div>
-    <div *ngIf="savedBooks.length === 0 && (filterTerm || filterStatus)" class="text-light">
+    <div *ngIf="savedItems.length === 0 && (filterTerm || filterStatus)" class="text-light">
         <p>No books match your filter criteria.</p>
     </div>
 </div>

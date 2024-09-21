@@ -1,0 +1,22 @@
+<div class="position-absolute top-0 start-50 translate-middle-x" style="width: 85%;">
+    <div class="input-group">
+        <input id="pageCount" class="form-control form-control-sm bg-transparent border-0 rounded-0 text-light"
+            style="background-color: rgba(0,0,0,.75) !important; border-bottom-left-radius: .25rem !important;direction: rtl;"
+            type="number" max="{{item.pageCount}}" min="1" (change)="save.emit()" [value]="item.currentPage"
+            placeholder="Enter page count" />
+        <button
+            class="btn btn-sm btn-outline-light bg-transparent border-0 rounded-0 text-light border-start border-secondary"
+            style="background-color: rgba(0,0,0,.75) !important; border-bottom-right-radius: .25rem !important;">
+            {{item.pageCount}} <fa-icon [icon]="faBookOpen" class="text-light"></fa-icon>
+        </button>
+    </div>
+</div>
+
+<!-- Authors -->
+<div *ngIf="item.authors !== undefined && (item.authors?.length ?? 0) > 0"
+    class="position-absolute bottom-0 start-50 translate-middle-x rounded-top text-center text-truncate"
+    style="background-color: rgba(0,0,0,.75) !important; width: 85%;">
+    <small class="text-light">
+        {{ item.authors }}
+    </small>
+</div>

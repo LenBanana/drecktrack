@@ -9,11 +9,11 @@
         <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
             <ul class="navbar-nav">                
                 <li class="nav-item">
-                    <a class="nav-link pointer text-light" (click)="setActiveTab('shows')"><fa-icon
+                    <a class="nav-link pointer text-light" (click)="setActiveTab('Show')"><fa-icon
                             [icon]="movieIcon"></fa-icon> Shows</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link pointer text-light" (click)="setActiveTab('books')"><fa-icon
+                    <a class="nav-link pointer text-light" (click)="setActiveTab('Book')"><fa-icon
                             [icon]="bookIcon"></fa-icon> Books</a>
                 </li>
             </ul>
@@ -26,5 +26,5 @@
         </div>
     </div>
 </nav>
-<app-shows *ngIf="currectActiveTab=='shows'"></app-shows>
-<app-books *ngIf="currectActiveTab=='books'"></app-books>
+<app-items *ngIf="currentItemType=='Show'" [currentItemType]="currentItemType"></app-items>
+<app-items *ngIf="currentItemType=='Book'" [currentItemType]="currentItemType"></app-items>

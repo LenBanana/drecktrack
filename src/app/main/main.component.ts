@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
-import { ShowsComponent } from "../shows/shows.component";
-import { BooksComponent } from "../books/books.component";
+import { CollectibleItemsComponent } from "../items/item.component";
 import { faBook, faClapperboard, faHome, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { CommonModule } from '@angular/common';
@@ -10,7 +9,7 @@ import { AuthService } from '../auth-modal/auth-service/auth.service';
 @Component({
   selector: 'app-main',
   standalone: true,
-  imports: [ShowsComponent, BooksComponent, FontAwesomeModule, CommonModule, AuthModalComponent],
+  imports: [CollectibleItemsComponent, FontAwesomeModule, CommonModule, AuthModalComponent],
   templateUrl: './main.component.html',
   styleUrl: './main.component.scss'
 })
@@ -20,12 +19,12 @@ export class MainComponent {
   homeIcon = faHome;
   logoutIcon = faSignOutAlt;
 
-  currectActiveTab = 'shows';
+  currentItemType: 'Book' | 'Movie' | 'Show' = 'Show';
 
   constructor(private authService: AuthService) { }
 
-  setActiveTab(tab: string) {
-    this.currectActiveTab = tab;
+  setActiveTab(tab: 'Book' | 'Movie' | 'Show') {
+    this.currentItemType = tab;
   }
 
   logout() {

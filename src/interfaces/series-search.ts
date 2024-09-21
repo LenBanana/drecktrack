@@ -1,4 +1,4 @@
-export interface SeriesSearch {
+export interface ShowSearch {
     score: number;
     show:  Show;
 }

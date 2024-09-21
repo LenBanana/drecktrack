@@ -27,7 +27,7 @@ export enum CollectibleStatus {
     notes: string;
     dateStarted?: Date;
     dateCompleted?: Date;
-    collectibleItem: CollectibleItemDto | BookDto;
+    collectibleItem: CollectibleItemDto | BookDto | MovieDto | ShowDto;
   }
 
   export interface UserCollectibleItemDto extends AddUserCollectibleItemDto {
@@ -39,6 +39,7 @@ export enum CollectibleStatus {
     title: string;
     description: string;
     releaseDate?: Date;
+    endDate?: Date;
     language?: string;
     genres?: string[];
     tags?: string[];
@@ -68,6 +69,7 @@ export enum CollectibleStatus {
 
   export interface ShowDto extends CollectibleItemDto {
     seasons: SeasonDto[];
+    status: string;
   }
 
   export interface SeasonDto {
@@ -80,6 +82,7 @@ export enum CollectibleStatus {
 
   export interface EpisodeDto {
     name: string;
+    watched: boolean;
     episodeNumber: number;
     releaseDate?: Date;
     description?: string;

@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { CollectibleItemsComponent } from "../items/item.component";
+import { CollectibleItemsComponent } from "../items/collectible-items.component";
 import { faBook, faClapperboard, faHome, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { CommonModule } from '@angular/common';

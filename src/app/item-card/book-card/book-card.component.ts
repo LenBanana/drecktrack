@@ -13,7 +13,23 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 })
 export class BookCardComponent {
   @Input() item!: BookDto;
-  @Output() save = new EventEmitter<void>();
+  @Output() changeCurrentPage = new EventEmitter<number>();
 
   faBookOpen = faBookOpen;
+
+  constructor() { }
+
+  changePage(inputEvent: Event) {
+    const target = inputEvent.target as HTMLInputElement;
+    const pageValue = parseInt(target.value);
+  
+    // If input is empty, not a number, or outside the valid range, reset to current page
+    if (!target.value || isNaN(pageValue) || pageValue < 1 || pageValue > this.item.pageCount) {
+      target.value = this.item.currentPage.toString();
+      return;
+    }
+  
+    this.changeCurrentPage.emit(pageValue);
+  } 
+  
 }

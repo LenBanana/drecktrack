@@ -1,0 +1,89 @@
+<div class="show-detail-container" *ngIf="!isLoading; else loading">
+    <div class="header">
+      <button class="back-button" (click)="goBack()" aria-label="Go Back">
+        <fa-icon [icon]="faArrowLeft"></fa-icon> Back
+      </button>
+      <h1 class="title">{{ show.title }}</h1>
+    </div>
+  
+    <div class="show-info">
+      <img
+        *ngIf="show.coverImageUrl"
+        [src]="show.coverImageUrl"
+        [alt]="show.title + ' Cover Image'"
+        class="cover-image"
+      />
+      <div class="details">
+        <p *ngIf="!isMobile" class="description" [innerHTML]="show.description"></p>
+        <div class="meta">
+          <span class="meta-item">
+            <fa-icon [icon]="faCalendarAlt"></fa-icon>
+            Release Date: {{ releaseDate }}
+          </span>
+          <span class="meta-item">
+            <fa-icon [icon]="faTags"></fa-icon>
+            Genres: {{ genres }}
+          </span>
+          <span class="meta-item">
+            <fa-icon [icon]="faStar"></fa-icon>
+            Rating: {{ averageRating }}
+          </span>
+        </div>
+      </div>
+    </div>
+  
+    <div class="accordion-container" id="seasonsAccordion">
+      <div
+        *ngFor="let season of show.seasons; let i = index"
+        class="season-item"
+      >
+        <div class="season-header" (click)="toggleSeason(season)" tabindex="0" role="button" [attr.aria-expanded]="season.isExpanded">
+          <div class="season-title w-100">
+            <span>Season {{ season.seasonNumber }}: {{ season.name }}</span>
+            <span class="badge ms-auto me-4" [ngClass]="getSeasonStatus(season)">
+              {{ getSeasonStatus(season) }}
+            </span>
+          </div>
+          <fa-icon [icon]="season.isExpanded ? faChevronUp : faChevronDown"></fa-icon>
+        </div>
+        <div
+          class="season-content"
+          [@collapseAnimation]="season.isExpanded ? 'expanded' : 'collapsed'"
+          *ngIf="season.isExpanded"
+        >
+          <ul class="episode-list">
+            <li
+              *ngFor="let episode of season.episodes"
+              class="episode-item"
+            >
+              <label>
+                <input
+                  type="checkbox"
+                  [(ngModel)]="episode.watched"
+                  (change)="updateItem()"
+                />
+                <span>
+                  Episode {{ episode.episodeNumber }}: {{ episode.name }}
+                </span>
+              </label>
+            </li>
+          </ul>
+        </div>
+        <div class="progress-bar" style="height: 1px;">
+            <div class="progress" style="background-color: #4caf50;" [style.width.%]="getSeasonProgress(season)"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <ng-template #loading>
+    <div class="loading-container">
+      <div class="spinner"></div>
+      <p>Loading show details...</p>
+    </div>
+  </ng-template>
+  
+  <div *ngIf="errorMessage" class="error-message">
+    {{ errorMessage }}
+  </div>
+  

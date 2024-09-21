@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { concatMap, map, Observable, of } from 'rxjs';
-import { AddUserCollectibleItemDto, BookDto, CollectibleStatus, MovieDto, ShowDto, UserCollectibleItemDto, UserCollectibleItemDtoPagination } from '../interfaces/dtos/CollectibleItemDto';
+import { AddUserCollectibleItemDto, BookDto, CollectibleItemDto, CollectibleStatus, MovieDto, ShowDto, UserCollectibleItemDto, UserCollectibleItemDtoPagination } from '../interfaces/dtos/CollectibleItemDto';
 import { ShowService } from '../app/items/show-service/show.service';
 
 @Injectable({
@@ -49,6 +49,38 @@ export class UserCollectionService {
 
   getUserCollectibleItem(itemId: string): Observable<UserCollectibleItemDto> {
     return this.http.get<UserCollectibleItemDto>(`${this.baseUrl}/${itemId}`, { headers: this.headers });
+  }  
+
+  changeItem(status: CollectibleStatus | undefined, item: CollectibleItemDto) {
+    const itemId = item.id;
+    if (!itemId) {
+      return;
+    }
+    this.getUserCollectibleItem(itemId).subscribe(userCollectible => {
+      userCollectible.collectibleItem.itemType = item.itemType;
+
+      switch (item.itemType) {
+        case 'Book':
+          userCollectible.collectibleItem = item as BookDto;
+          break;
+        case 'Movie':
+          userCollectible.collectibleItem = item as MovieDto;
+          break;
+        case 'Show':
+          userCollectible.collectibleItem = item as ShowDto;
+          break;
+      }
+      const newStatus = status == undefined ? CollectibleStatus.NotStarted : status;
+      this.updateUserCollectibleItem(itemId, { ...userCollectible, status: newStatus }).subscribe(
+        () => {
+          status = newStatus;
+        },
+        (error) => {
+          console.error('Error updating book status:', error);
+          alert('Error updating book status.');
+        }
+      );
+    });
   }
 
   addItemToCollection(item: AddUserCollectibleItemDto): Observable<any> {

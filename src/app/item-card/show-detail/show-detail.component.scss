@@ -1,0 +1,237 @@
+$primary-color: #1e1e1e;
+$secondary-color: #2c2c2c;
+$accent-color: #4caf50;
+$text-color: #f5f5f5;
+$muted-text: #bdbdbd;
+$badge-not-started: #f44336;
+$badge-in-progress: #ff9800;
+$badge-completed: #4caf50;
+$transition-duration: 0.3s;
+
+.show-detail-container {
+  padding: 2rem;
+  background-color: $primary-color;
+  color: $text-color;
+  min-height: 100vh;
+
+  .header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 2rem;
+
+    .back-button {
+      background: none;
+      border: none;
+      color: $accent-color;
+      font-size: 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      margin-right: 1rem;
+      transition: color $transition-duration;
+
+      &:hover {
+        color: lighten($accent-color, 10%);
+      }
+
+      fa-icon {
+        margin-right: 0.5rem;
+      }
+    }
+
+    .title {
+      font-size: 2rem;
+      margin: 0;
+    }
+  }
+
+  .show-info {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    margin-bottom: 2rem;
+
+    .cover-image {
+      width: 200px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    .details {
+      flex: 1;
+
+      .description {
+        font-size: 1rem;
+        line-height: 1.6;
+        margin-bottom: 1rem;
+      }
+
+      .meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+
+        .meta-item {
+          display: flex;
+          align-items: center;
+          font-size: 0.9rem;
+          color: $muted-text;
+
+          fa-icon {
+            margin-right: 0.5rem;
+            color: $accent-color;
+          }
+        }
+      }
+    }
+  }
+
+  .accordion-container {
+    .season-item {
+      background-color: $secondary-color;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      overflow: hidden;
+      transition: background-color $transition-duration;
+
+      &:hover {
+        background-color: darken($secondary-color, 5%);
+      }
+
+      .season-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem;
+        cursor: pointer;
+        user-select: none;
+
+        .season-title {
+          display: flex;
+          align-items: center;
+          gap: 1rem;
+
+          .badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            text-transform: capitalize;
+            color: $text-color;
+
+            &.Started {
+              background-color: $badge-not-started;
+            }
+
+            &.Progress {
+              background-color: $badge-in-progress;
+            }
+
+            &.Completed {
+              background-color: $badge-completed;
+            }
+          }
+        }
+
+        fa-icon {
+          transition: transform $transition-duration;
+        }
+      }
+
+      .season-content {
+        padding: 1rem;
+        background-color: darken($secondary-color, 5%);
+        transition: max-height $transition-duration ease-in-out;
+
+        .episode-list {
+          list-style: none;
+          padding: 0;
+          margin: 0;
+
+          .episode-item {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid darken($secondary-color, 10%);
+
+            label {
+              display: flex;
+              align-items: center;
+              width: 100%;
+              cursor: pointer;
+
+              input {
+                margin-right: 1rem;
+                accent-color: $accent-color;
+                width: 16px;
+                height: 16px;
+              }
+
+              span {
+                flex: 1;
+                color: $text-color;
+              }
+            }
+
+            &:last-child {
+              border-bottom: none;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+
+    .spinner {
+      border: 8px solid $secondary-color;
+      border-top: 8px solid $accent-color;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      animation: spin 1s linear infinite;
+      margin-bottom: 1rem;
+    }
+
+    p {
+      color: $muted-text;
+      font-size: 1.2rem;
+    }
+  }
+
+  .error-message {
+    padding: 1rem;
+    background-color: #f44336;
+    color: #fff;
+    border-radius: 8px;
+    text-align: center;
+    margin: 2rem;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .show-info {
+    flex-direction: column;
+    align-items: center;
+
+    .cover-image {
+      width: 150px;
+    }
+
+    .details {
+      text-align: center;
+    }
+  }
+}

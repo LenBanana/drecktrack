@@ -1,4 +1,4 @@
-<div class="card book-card bg-dark text-light shadow-sm h-100" style="height: 225px;"
+<div class="card book-card bg-dark text-light shadow-sm h-100" style="height: 225px;" (click)="onItemClicked()"
   (contextmenu)="onRightClick($event)" (dblclick)="onRightClick($event)">
   <div class="row my-auto g-0 h-100">
     <div class="col-5 col-md-3 h-100">
@@ -13,7 +13,7 @@
         <img [src]="item.coverImageUrl" class="rounded-start book-thumbnail h-100 w-100" style="max-height: 100%;"
           alt="Book Cover" />
         <!-- Book Card -->
-        <app-book-card *ngIf="inCollection&&isBook(item)" [item]="item" (save)="changeItem(undefined)"></app-book-card>
+        <app-book-card *ngIf="inCollection&&isBook(item)" [item]="item" (changeCurrentPage)="changeCurrentPage($event)"></app-book-card>
 
         <!-- Show Card -->
         <app-show-card *ngIf="inCollection&&isShow(item)" [item]="item" (save)="changeItem(undefined)"></app-show-card>
@@ -50,7 +50,7 @@
             <div *ngIf="showContextMenu" [ngStyle]="{
               'top.px': contextMenuPosition.y,
               'left.px': contextMenuPosition.x
-            }" class="custom-context-menu" (click)="onContextMenuOption('remove')">
+            }" class="custom-context-menu" (click)="onContextMenuOption($event, 'remove')">
               <ul class="list-unstyled mb-0">
                 <li class="context-menu-item">Remove from Collection</li>
               </ul>

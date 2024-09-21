@@ -5,7 +5,7 @@
 </button>
 <input type="file" #fileInput (change)="onFileSelected($event)" accept="image/*" style="display: none;" multiple />
 <!-- Button to open camera scanner modal -->
-<button class="btn btn-secondary rounded-0 rounded-end" data-bs-toggle="modal" data-bs-target="#scannerModal"
+<button class="btn btn-secondary rounded-0" data-bs-toggle="modal" data-bs-target="#scannerModal"
     (click)="setCamera()">
     <fa-icon [icon]="cameraIcon"></fa-icon>
 </button>

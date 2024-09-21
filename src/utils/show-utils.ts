@@ -54,7 +54,10 @@ export function mapExternalShowToCollectibleItem(showSearchArray: ShowSearch[]):
 export function maxExternalSeasonsToDto(seasonSearch: SeasonSearch[]): SeasonDto[] {
     return seasonSearch.map(season => {
         const seasonDto: SeasonDto = {
+            id: undefined,
+            showId: undefined,
             name: season.name,
+            externalId: season.id.toString(),
             seasonNumber: season.number,
             episodes: [],
             releaseDate: season.premiereDate ? new Date(season.premiereDate) : undefined,
@@ -68,7 +71,10 @@ export function maxExternalSeasonsToDto(seasonSearch: SeasonSearch[]): SeasonDto
 export function maxExternalEpisodeToDto(episodeSearch: EpisodeSearch[]): EpisodeDto[] {
     return episodeSearch.map(episode => {
         const episodeDto: EpisodeDto = {
+            id: undefined,
+            seasonId: undefined,
             name: episode.name,
+            externalId: episode.id.toString(),
             watched: false,
             episodeNumber: episode.number,
             duration: episode.runtime,

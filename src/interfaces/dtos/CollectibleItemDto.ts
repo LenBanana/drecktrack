@@ -58,8 +58,8 @@ export enum CollectibleStatus {
   export interface BookDto extends CollectibleItemDto {
     authors?: string[];
     publisher?: string;
-    pageCount?: number;
-    currentPage?: number;
+    pageCount: number;
+    currentPage: number;
     format?: BookFormat;
   }
   
@@ -73,7 +73,11 @@ export enum CollectibleStatus {
   }
 
   export interface SeasonDto {
+    id: string | undefined;
+    showId: string | undefined;
     name: string;
+    externalId: string;
+    isExpanded?: boolean;
     seasonNumber: number;
     episodes: EpisodeDto[];
     releaseDate?: Date;
@@ -81,7 +85,10 @@ export enum CollectibleStatus {
   }
 
   export interface EpisodeDto {
+    id: string | undefined;
+    seasonId: string | undefined;
     name: string;
+    externalId: string;
     watched: boolean;
     episodeNumber: number;
     releaseDate?: Date;

@@ -46,7 +46,8 @@ export function mapGoogleBookToCollectibleItem(book: Book): UserCollectibleItemD
         // Specific to books
         authors: volumeInfo.authors || [],
         publisher: volumeInfo.publisher || '',
-        pageCount: volumeInfo.pageCount,
+        pageCount: volumeInfo.pageCount || 0,
+        currentPage: 0,
         format: undefined, // Google Books API doesn't provide format directly
     };
 

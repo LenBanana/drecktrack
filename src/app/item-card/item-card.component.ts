@@ -5,11 +5,12 @@ import { faHourglassStart, faBookOpen, faCheckCircle, faGlasses } from '@fortawe
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { ConfirmModalComponent } from '../confirm-modal/confirm-modal.component';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { BookDto, CollectibleItemDto, CollectibleStatus, MovieDto, ShowDto, UserCollectibleItemDto } from '../../interfaces/dtos/CollectibleItemDto';
+import { BookDto, CollectibleItemDto, CollectibleStatus, MovieDto, ShowDto } from '../../interfaces/dtos/CollectibleItemDto';
 import { UserCollectionService } from '../../storage/user-collection.service';
 import { statuses } from './utils/item-utils';
 import { BookCardComponent } from "./book-card/book-card.component";
 import { ShowCardComponent } from "./show-card/show-card.component";
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-item-card',
@@ -57,7 +58,8 @@ export class CollectibleItemCardComponent {
 
   constructor(
     private modalService: NgbModal,
-    private userCollectionService: UserCollectionService
+    private userCollectionService: UserCollectionService,
+    private router: Router
   ) {
     // Listen for window resize events
     window.addEventListener('resize', () => {
@@ -65,51 +67,25 @@ export class CollectibleItemCardComponent {
     });
   }
 
-  changeItem(status: CollectibleStatus | undefined) {
-    const itemId = this.item.id;
-    if (!itemId) {
-      return;
-    }
-    this.userCollectionService.getUserCollectibleItem(itemId).subscribe(userCollectible => {
-      userCollectible.collectibleItem.itemType = this.item.itemType;
-
-      switch (this.item.itemType) {
-        case 'Book':
-          userCollectible.collectibleItem = this.item as BookDto;
-          break;
-        case 'Movie':
-          userCollectible.collectibleItem = this.item as MovieDto;
-          break;
-        case 'Show':
-          userCollectible.collectibleItem = this.item as ShowDto;
-          break;
-      }
-      status = status == undefined ? CollectibleStatus.NotStarted : status;
-      this.userCollectionService.updateUserCollectibleItem(itemId, { ...userCollectible, status }).subscribe(
-        () => {
-          this.status = status;
-        },
-        (error) => {
-          console.error('Error updating book status:', error);
-          alert('Error updating book status.');
-        }
-      );
-    });
-  }
-
-  changeCurrentPage(inputChange: Event) {
+  changeCurrentPage(newPage: number) {
     if (!this.isBook(this.item)) {
       return;
     }
+    this.item.currentPage = newPage;
+    this.changeItem(undefined);
+  }
 
-    const element = inputChange.target as HTMLInputElement;
-    var page = +element.value;
-    if (!page || page < 1 || page > this.item.pageCount!) {
-      (element.value as unknown as number) = this.item.currentPage || 1;
-      return;
+  changeItem(status: CollectibleStatus | undefined) {
+    status = status == undefined ? this.status : status;
+    this.status = status;
+    this.userCollectionService.changeItem(status, this.item);
+  }
+
+  // Handle left-click event
+  onItemClicked() {
+    if (this.inCollection && this.isShow(this.item)) {
+      this.router.navigate(['/show', this.item.id]);
     }
-    this.item.currentPage = page;
-    this.changeItem(this.status);
   }
 
   // Handle right-click event
@@ -125,8 +101,10 @@ export class CollectibleItemCardComponent {
   }
 
   // Handle click on context menu option
-  onContextMenuOption(action: string) {
+  onContextMenuOption(event: MouseEvent, action: string) {
     this.showContextMenu = false;
+    event.preventDefault();
+    event.stopPropagation();
     if (action === 'remove') {
       this.confirmDelete();
     }

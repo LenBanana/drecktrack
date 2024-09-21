@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { NgbPaginationModule, NgbTypeaheadModule, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { catchError, debounceTime, distinctUntilChanged, Observable, of, switchMap, tap } from 'rxjs';
-import { faTimes } from '@fortawesome/free-solid-svg-icons';
+import { faFilter, faSearch, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { BarcodeScannerComponent } from '../barcode-scanner/barcode-scanner.component';
 import { CollectibleItemCardComponent } from '../item-card/item-card.component';
 import { CollectibleItemStorageService } from './item-storage-service/item-storage.service';
@@ -13,12 +13,13 @@ import { UserCollectibleItemDto, CollectibleStatus } from '../../interfaces/dtos
 import { UserCollectionService } from '../../storage/user-collection.service';
 import { MovieService } from './movie-service/movie.service';
 import { ShowService } from './show-service/show.service';
+import { statusFormatter } from '../../utils/general-utils';
 @Component({
-  selector: 'app-items',
+  selector: 'app-collectible-items',
   standalone: true,
   imports: [BarcodeScannerComponent, CollectibleItemCardComponent, CommonModule, FormsModule, NgbTypeaheadModule, FontAwesomeModule, NgbPaginationModule],
-  templateUrl: './item.component.html',
-  styleUrl: './item.component.scss'
+  templateUrl: './collectible-items.component.html',
+  styleUrl: './collectible-items.component.scss'
 })
 export class CollectibleItemsComponent implements OnInit {
   // Item type determines which service to use for searching
@@ -32,8 +33,11 @@ export class CollectibleItemsComponent implements OnInit {
   totalItems = 0;
   searching = false;
   searchFailed = false;
-  clearIcon = faTimes;
-  
+  clearIcon = faTimes;  
+  searchIcon = faSearch;
+  filterIcon = faFilter;
+
+  isMobile = window.innerWidth < 768;
 
   // Filter properties
   filterTerm = '';
@@ -43,20 +47,8 @@ export class CollectibleItemsComponent implements OnInit {
     CollectibleStatus.InProgress,
     CollectibleStatus.Completed,
   ];
-  
-  // A switch that returns a string based on the status
-  statusFormatter = (status: CollectibleStatus) => {
-    switch (status) {
-      case CollectibleStatus.NotStarted:
-        return 'Not Started';
-      case CollectibleStatus.InProgress:
-        return 'In Progress';
-      case CollectibleStatus.Completed:
-        return 'Completed';
-      default:
-        return '';
-    }
-  }
+
+  statusFormatter = (status: CollectibleStatus) => statusFormatter(status);
 
   formatter = (item: UserCollectibleItemDto) => item?.collectibleItem?.title || '';
 
@@ -70,6 +62,10 @@ export class CollectibleItemsComponent implements OnInit {
 
   ngOnInit() {
     this.loadSavedItems();
+
+    window.addEventListener('resize', () => {
+      this.isMobile = window.innerWidth < 768;
+    });
   }
 
   loadSavedItems() {

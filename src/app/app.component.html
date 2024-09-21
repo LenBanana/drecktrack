@@ -1,1 +1,4 @@
-<router-outlet></router-outlet>
+<app-auth-modal></app-auth-modal>
+<div *ngIf="authService.isAuthenticated$ | async">
+  <router-outlet></router-outlet>
+</div>

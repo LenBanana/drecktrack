@@ -1,227 +1,205 @@
-import { Component, ViewChild } from '@angular/core';
-import { BookSearch } from '../../interfaces/book-search';
+import { Component, OnInit } from '@angular/core';
 import { BookService } from './book-service/book.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { NgbTypeaheadModule } from '@ng-bootstrap/ng-bootstrap';
-import { faCamera, faFileImage, faMagnifyingGlass, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { NgbPaginationModule, NgbTypeaheadModule, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { ImageCroppedEvent, ImageCropperComponent, LoadedImage } from 'ngx-image-cropper';
-import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
-import { LOAD_WASM, NgxScannerQrcodeComponent, NgxScannerQrcodeModule, NgxScannerQrcodeService, ScannerQRCodeConfig, ScannerQRCodeResult, ScannerQRCodeSelectedFiles } from 'ngx-scanner-qrcode';
-import { BehaviorSubject } from 'rxjs';
-
-LOAD_WASM().subscribe();
+import { catchError, debounceTime, distinctUntilChanged, Observable, of, switchMap, tap } from 'rxjs';
+import { Book } from '../../interfaces/book-search';
+import { faTimes } from '@fortawesome/free-solid-svg-icons';
+import { BarcodeScannerComponent } from '../barcode-scanner/barcode-scanner.component';
+import { CollectibleItemCardComponent } from '../book-card/book-card.component';
+import { CollectibleItemStorageService } from './book-storage-service/book-storage.service';
+import { UserCollectibleItemDto, CollectibleStatus, BookDto } from '../../interfaces/dtos/CollectibleItemDto';
+import { Book as GoogleBook } from '../../interfaces/book-search';
+import { UserCollectionService } from '../../storage/user-collection.service';
 @Component({
   selector: 'app-books',
   standalone: true,
-  imports: [CommonModule, FormsModule, NgbTypeaheadModule, FontAwesomeModule, ImageCropperComponent, NgxScannerQrcodeModule],
+  imports: [BarcodeScannerComponent, CollectibleItemCardComponent, CommonModule, FormsModule, NgbTypeaheadModule, FontAwesomeModule, NgbPaginationModule],
   templateUrl: './books.component.html',
   styleUrl: './books.component.scss'
 })
-export class BooksComponent {
-  imageChangedEvent: Event | null = null;
-  croppedImage: SafeUrl = '';
-  isbnTerm = '';
-  selectedBooks: BookSearch[] = [];
-  savedBooks: BookSearch[] = [];
-  errorMessage: string | null = null;
-  loadingMessage: string | null = null;
-  bookUserId = '';
-  currentCrop: ImageCroppedEvent | null = null;
-  scannedValues: string[] = [];
-
-  @ViewChild(NgxScannerQrcodeComponent) scanner?: NgxScannerQrcodeComponent;
-  searchIcon = faMagnifyingGlass;
-  fileSearchIcon = faFileImage;
-  cameraIcon = faCamera;
+export class BooksComponent implements OnInit {
+  searchTerm = '';
+  selectedBooks: Book[] = [];
+  savedBooks: UserCollectibleItemDto[] = [];
+  page = 1;
+  pageSize = 8;
+  totalItems = 0;
+  searching = false;
+  searchFailed = false;
   clearIcon = faTimes;
 
-  constructor(private bookService: BookService, private sanitizer: DomSanitizer, private qrcode: NgxScannerQrcodeService) {
-    this.bookUserId = bookService.getUserId();
-
-    this.bookService.getSavedBooks().subscribe((books) => {
-      this.savedBooks = books;
-    }, (error) => {
-      console.error('Error fetching books:', error);
-    });
-
-    this.setCamera();
-  }
-
-  setCamera() {
-    const devices = this.scanner?.devices.value;
-    if (!devices) {
-      return;
-    }
-
-    const environmentDevice = devices.find(f => (/back|trás|rear|traseira|environment|ambiente/gi.test(f.label))) ?? devices.pop();
-
-    if (!environmentDevice) {
-      return;
-    }
-
-    this.scanner?.playDevice(environmentDevice?.deviceId);
-  }
-
-  imageCropped(event: ImageCroppedEvent) {
-    if (!event.objectUrl) {
-      return;
-    }
-    this.croppedImage = this.sanitizer.bypassSecurityTrustUrl(event.objectUrl);
-    // event.blob can be used to upload the cropped image
-    this.currentCrop = event;
-  }
-  imageLoaded(image: LoadedImage) {
-    // show cropper
-  }
-  cropperReady() {
-    // cropper ready
-  }
-  loadImageFailed() {
-    // show message
-  }
-  scanEvent(event: ScannerQRCodeResult[]) {
-    var firstEvent = event[0];
-    if (!event || !firstEvent.value) {
-      return;
-    }
-
-    if (this.scannedValues.includes(firstEvent.value)) {
-      return;
-    }
-    console.log('Scan event:', firstEvent);
-
-    this.scannedValues.push(firstEvent.value);
-  }
-
-  useCroppedImage() {
-    if (!this.currentCrop) {
-      return;
-    }
-
-    // Use imageocr to extract ISBN from blob
-    let blob = this.currentCrop.blob;
-    if (!blob) {
-      return;
-    }
-
-    let file = new File([blob], 'cropped-image.jpg', { type: 'image/jpeg' });
-    this.imageOcr(file);
-  }
-
-  // Trigger ISBN search when user types
-  isbnTextSearch(): void {
-    if (this.isbnTerm.length >= 1) {
-      this.selectedBooks = [];
-      this.bookService.searchBookByISBN(this.isbnTerm).subscribe((bookSearch) => {
-        bookSearch.forEach((book) => {
-          this.selectedBooks.push(book);
-        });
-        this.errorMessage = null;
-      }, (error) => {
-        console.error('Error searching for ISBN:', error);
-        this.errorMessage = 'Failed to search for the ISBN.';
-      });
+  // Filter properties
+  filterTerm = '';
+  filterStatus: CollectibleStatus | undefined = undefined;
+  statuses: CollectibleStatus[] = [
+    CollectibleStatus.NotStarted,
+    CollectibleStatus.InProgress,
+    CollectibleStatus.Completed,
+  ];
+  
+  // A switch that returns a string based on the status
+  statusFormatter = (status: CollectibleStatus) => {
+    switch (status) {
+      case CollectibleStatus.NotStarted:
+        return 'Not Started';
+      case CollectibleStatus.InProgress:
+        return 'In Progress';
+      case CollectibleStatus.Completed:
+        return 'Completed';
+      default:
+        return '';
     }
   }
 
-  // Handle file input for image-based ISBN search
-  onFileSelected(event: Event): void {
-    // Commented out to try barcode instead of OCR
-    //this.imageChangedEvent = event;
-    let target = event.target as HTMLInputElement;
-    let files = target.files;
-    if (files && files.length > 0) {
-      this.barcodeScan(Array.from(files));
-    }
+  formatter = (book: Book) => book.volumeInfo?.title;
+
+  constructor(
+    private bookService: BookService,
+    private bookStorageService: CollectibleItemStorageService,
+    private userCollectionService: UserCollectionService
+  ) {}
+
+  ngOnInit() {
+    // Load saved books on initialization
+    this.loadSavedBooks();
   }
 
-  barcodeScan(files: File[]) {
-    if (files && files.length > 0) {
-      this.loadingMessage = 'Processing image...';
-      this.selectedBooks = [];
-      this.isbnTerm = '';
-      this.errorMessage = null;
-      const config: ScannerQRCodeConfig = {};
-      this.qrcode.loadFilesToScan(files, config).subscribe((res: ScannerQRCodeSelectedFiles[]) => {
-        if (res && res.length > 0) {
-          res.forEach((result) => {
-            if (result && result.data && result.data.length > 0) {
-              result.data.forEach((result) => {
-                this.isbnTerm += result.value + ' ';
-                this.bookService.searchBookByISBN(result.value).subscribe((bookSearch) => {
-                  console.log('Book search:', bookSearch);
-                  if (bookSearch.length === 0) {
-                    this.errorMessage = 'No book details found.';
-                    return;
-                  }
-
-                  bookSearch.forEach((book) => {
-                    this.selectedBooks.push(book);
-                  });
-                  this.errorMessage = null;
-                }, (error) => {
-                  console.error('Error searching for ISBN:', error);
-                  this.errorMessage = 'Failed to search for the ISBN.';
-                });
-              });
-            }
-          });
-        }
-      }, (error) => {
-        console.error('Error processing image:', error);
-        this.errorMessage = 'Failed to process the image.';
-      }, () => {
-        this.loadingMessage = null;
-      });
-    }
+  loadSavedBooks() {
+    this.userCollectionService.getUserCollection(this.filterStatus, this.filterTerm, this.page, this.pageSize).subscribe(
+      (items) => {
+        this.savedBooks = items.items;
+        this.page = items.pageNumber;
+        this.pageSize = items.pageSize;
+        this.totalItems = items.totalItems;
+      },
+      (error) => {
+        console.error('Error loading saved books:', error);
+      }
+    );
   }
 
-  imageOcr(file: File) {
+  onPageChange(page: number) {
+    this.page = page;
+    this.loadSavedBooks();
+  }
+
+  applyFilters() {
+    this.page = 1;
+    this.loadSavedBooks();
+  }
+
+  search = (text$: Observable<string>) =>
+    text$.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      tap(() => (this.searching = true)),
+      switchMap((term) =>
+        term.length < 2
+          ? of([])
+          : this.bookService.searchBooks(term).pipe(
+              tap(() => (this.searchFailed = false)),
+              catchError(() => {
+                this.searchFailed = true;
+                return of([]);
+              })
+            )
+      ),
+      tap(() => (this.searching = false))
+    );
+
+  selectItem(event: NgbTypeaheadSelectItemEvent) {
+    const selectedBook: Book = event.item;
+    if (!this.selectedBooks.some((book) => book.id === selectedBook.id)) {
+      this.selectedBooks.push(selectedBook);
+    }
+    this.searchTerm = '';
+  }
+
+  clearSelection(): void {
     this.selectedBooks = [];
-    this.bookService.extractISBN(file).then((bookSearch) => {
-      this.loadingMessage = null;
-      if (bookSearch) {
-        bookSearch.forEach((book) => {
-          this.selectedBooks.push(book);
+    this.searchTerm = '';
+  }
+
+  // Handle scanned ISBNs from BarcodeScannerComponent
+  onIsbnScanned(isbn: string) {
+    this.fetchBookByISBN(isbn);
+  }
+
+  // Fetch book details by ISBN
+  fetchBookByISBN(isbn: string) {
+    // Check if the book is already selected
+    if (this.savedBooks.some((item) => item.collectibleItem.externalIds?.some((id) => id.identifier === isbn))) {
+      return;
+    }
+
+    this.bookService.searchBookByISBN(isbn).subscribe(
+      (books) => {
+        books.forEach((book) => {
+          if (!this.selectedBooks.some((b) => b.id === book.id)) {
+            this.selectedBooks.push(book);
+          }
         });
-        this.errorMessage = null;
-        this.imageChangedEvent = null;
-      } else {
-        this.errorMessage = 'No book details found.';
+      },
+      (error) => {
+        console.error('Error fetching book by ISBN:', error);
+        this.searchFailed = true;
       }
-    }).catch((error) => {
-      console.error('Error processing file:', error);
-      this.loadingMessage = null;
-      this.errorMessage = 'Failed to process the image.';
-    });
+    );
   }
 
-  addBook(selectedBook: BookSearch): void {
-    this.bookService.saveBook(selectedBook).subscribe((bookSearch) => {
-      if (selectedBook) {
-        selectedBook.saved = true;
-        this.savedBooks.push(selectedBook);
+  // Save a book to the collection
+  saveBook(book: Book): void {
+    this.bookStorageService.addToCollection(book).subscribe(
+      () => {
+        // Remove the book from the selected books
+        this.selectedBooks = this.selectedBooks.filter(
+          (b) => b.id !== book.id
+        );
+        // Reload the saved books
+        this.loadSavedBooks();
+      },
+      (error) => {
+        console.error('Error adding book to collection:', error);
+        alert('Error adding book to your collection.');
       }
-    }, (error) => {
-      console.error('Error saving book:', error);
-    });
+    );
   }
 
-  removeBook(book: BookSearch): void {
-    this.bookService.deleteBook(book.id).subscribe(() => {
-      this.savedBooks = this.savedBooks.filter((b) => b.isbn13 !== book.isbn13);
-    }, (error) => {
-      console.error('Error removing book:', error);
-    });
+  // Delete a book from the collection
+  deleteBook(bookId: string): void {
+    this.userCollectionService.removeItemFromCollection(bookId).subscribe(
+      () => {
+        // Reload the saved books
+        this.loadSavedBooks();
+      },
+      (error) => {
+        console.error('Error removing book from collection:', error);
+        alert('Error removing book from your collection.');
+      }
+    );
   }
 
-  inCollection(book: BookSearch): boolean {
-    return this.savedBooks.some((b) => b.isbn13 === book.isbn13 || b.isbn10 === book.isbn10);
+  onFilterChange() {
+    this.applyFilters();
   }
 
-  notInCollection(book: BookSearch): boolean {
-    return !this.savedBooks.some((b) => b.isbn13 === book.isbn13 || b.isbn10 === book.isbn10);
+  // Check if a book is in the collection
+  inCollection(book: Book): boolean {
+    return this.savedBooks.some((item) => item.collectibleItemId === book.id);
+  }
+
+  // Get the status of a book
+  getBookStatus(book: Book): CollectibleStatus | undefined {
+    const savedItem = this.savedBooks.find(
+      (item) => item.collectibleItemId === book.id
+    );
+    return savedItem ? savedItem.status : undefined;
+  }
+
+  setTitle(title: string) {
+    this.searchTerm = title;
   }
 }

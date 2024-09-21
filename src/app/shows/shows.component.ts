@@ -12,21 +12,19 @@ import { SeriesComponent } from '../series/series.component';
 import { SavedShow } from '../../interfaces/show';
 import { SeriesSearch } from '../../interfaces/series-search';
 import { placeholderImage } from '../../config/configs';
-import { SaveModalComponent } from "../save-modal/save-modal.component";
 import { BooksComponent } from "../books/books.component";
 
 
 @Component({
   selector: 'app-shows',
   standalone: true,
-  imports: [RouterOutlet, SeriesComponent, NgbTypeaheadModule, FormsModule, JsonPipe, CommonModule, FontAwesomeModule, NgbPaginationModule, NgbToastModule, SaveModalComponent],
+  imports: [RouterOutlet, SeriesComponent, NgbTypeaheadModule, FormsModule, JsonPipe, CommonModule, FontAwesomeModule, NgbPaginationModule, NgbToastModule],
   templateUrl: './shows.component.html',
   styleUrl: './shows.component.scss'
 })
 export class ShowsComponent implements OnDestroy {
 
   @ViewChild('instance', { static: true }) instance!: NgbTypeahead;
-  @ViewChild(SaveModalComponent) saveModal!: SaveModalComponent;
 
   subscriptions = new Subscription();
   selectedShows: SavedShow[] = [];
@@ -52,10 +50,6 @@ export class ShowsComponent implements OnDestroy {
 
   ngOnDestroy() {
     this.subscriptions.unsubscribe();
-  }
-
-  openModal() {
-    this.saveModal.open();
   }
 
   search: OperatorFunction<string, readonly SeriesSearch[]> = (text$: Observable<string>) => {
@@ -134,7 +128,6 @@ export class ShowsComponent implements OnDestroy {
     }
 
     this.seriesSearch.set('');
-    console.log(this.seriesSearch);
     if (this.storageService.exists(show)) {
       alert('Show already exists in your list');
       return;

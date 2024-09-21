@@ -1,6 +1,6 @@
 export var baseShowApiUrl = 'https://api.tvmaze.com/';
 
-export var baseBookApiUrl = 'https://nodered.dreckbu.de/books/';
+export var baseBookApiUrl = 'https://www.googleapis.com/books/v1/volumes';
 
 export var webSocketShareUrl = 'wss://nodered.dreckbu.de/ws/dtrack';
 export var webSocketRegisterUrl = 'wss://nodered.dreckbu.de/ws/dregister';

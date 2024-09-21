@@ -1,0 +1,10 @@
+<div class="modal-header bg-dark text-light border-secondary">
+    <h4 class="modal-title">{{ title }}</h4>
+</div>
+<div class="modal-body bg-dark text-light">
+    <p>{{ message }}</p>
+</div>
+<div class="modal-footer bg-dark text-light border-secondary">
+    <button type="button" class="btn btn-danger" (click)="activeModal.close('confirmed')">Yes</button>
+    <button type="button" class="btn btn-secondary" (click)="activeModal.dismiss('cancelled')">No</button>
+</div>

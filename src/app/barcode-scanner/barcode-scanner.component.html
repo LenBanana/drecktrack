@@ -1,0 +1,35 @@
+<!-- File input for scanning barcodes from images -->
+<button class="btn rounded-0" [class.btn-secondary]="!loading" [class.btn-primary]="loading"
+    (click)="fileInput.click()">
+    <fa-icon [icon]="fileSearchIcon"></fa-icon>
+</button>
+<input type="file" #fileInput (change)="onFileSelected($event)" accept="image/*" style="display: none;" multiple />
+<!-- Button to open camera scanner modal -->
+<button class="btn btn-secondary rounded-0 rounded-end" data-bs-toggle="modal" data-bs-target="#scannerModal"
+    (click)="setCamera()">
+    <fa-icon [icon]="cameraIcon"></fa-icon>
+</button>
+
+<!-- Scanner Modal -->
+<div class="modal fade" id="scannerModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+    aria-labelledby="scannerModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content bg-dark text-light">
+            <div class="modal-header">
+                <h5 class="modal-title" id="scannerModalLabel">Scanner</h5>
+            </div>
+            <div class="modal-body">
+                <ngx-scanner-qrcode #action="scanner" [isBeep]="false" [vibrate]="100"
+                    (event)="scanEvent($event)"></ngx-scanner-qrcode>
+                <p *ngIf="scannedValues.length === 0" class="mt-2">No scans yet...</p>
+                <p *ngIf="scannedValues.length > 0" class="mt-2">Scanned Values:</p>
+                <p *ngFor="let scan of scannedValues" class="mt-1">{{ scan }}</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" (click)="setCamera()">Switch Camera</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                    (click)="stopScanner()">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

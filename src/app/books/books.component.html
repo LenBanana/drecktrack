@@ -1,108 +1,75 @@
 <div class="container mt-3">
-    <!-- ISBN Search Input -->
+    <!-- Input group with search -->
     <div class="input-group mb-3">
-        <input type="text" class="form-control bg-dark text-light border-secondary" placeholder="Enter ISBN..."
-            [(ngModel)]="isbnTerm">
-        <button class="btn btn-secondary" (click)="fileInput.click()"><fa-icon
-                [icon]="fileSearchIcon"></fa-icon></button>
-        <input type="file" #fileInput (change)="onFileSelected($event)" accept="image/*" style="display: none;" multiple />
-        <ng-container>
-            <button class="btn" [class.btn-danger]="action.isStart" [class.btn-success]="!action.isStart" (click)="action.isStart ? action.stop() : (action.start() && setCamera())" data-bs-toggle="modal" data-bs-target="#scannerModal">
-                <fa-icon [icon]="cameraIcon"></fa-icon></button>
-        </ng-container>        
-        <!-- Clear search button -->
-        <button class="btn btn-danger" *ngIf="selectedBooks && selectedBooks.length>0" (click)="selectedBooks = []; isbnTerm = ''"><fa-icon [icon]="clearIcon"></fa-icon></button>
-        <button class="btn btn-primary" (click)="isbnTextSearch()"><fa-icon [icon]="searchIcon"></fa-icon></button>
+        <input id="typeahead-basic" type="text" class="form-control bg-dark text-light border-secondary"
+            [(ngModel)]="searchTerm" [ngbTypeahead]="search" [resultTemplate]="rt" [inputFormatter]="formatter"
+            (selectItem)="selectItem($event)" placeholder="Search for books..." />
+        <!-- Clear selection button -->
+        <button class="btn btn-danger" *ngIf="selectedBooks && selectedBooks.length > 0" (click)="clearSelection()">
+            <fa-icon [icon]="clearIcon"></fa-icon>
+        </button>
+
+        <!-- Barcode Scanner Component -->
+        <app-barcode-scanner (isbnScanned)="onIsbnScanned($event)"></app-barcode-scanner>
     </div>
 
-    <!--
-    <image-cropper style="max-height: 75vh;"
-    [imageChangedEvent]="imageChangedEvent"
-    [maintainAspectRatio]="false"
-    format="png"
-    (imageCropped)="imageCropped($event)"
-    (imageLoaded)="imageLoaded($event)"
-    (cropperReady)="cropperReady()"
-    (loadImageFailed)="loadImageFailed()"
-    [backgroundColor]="'Black'"
-></image-cropper>-->
-
-    <!-- Loading -->
-    <p *ngIf="action.isLoading">⌛ Loading...</p>
-
-    <!-- Button to start search for ISBN in cropped image -->
-    <button *ngIf="croppedImage" class="btn btn-primary" (click)="useCroppedImage()"><fa-icon [icon]="searchIcon"></fa-icon></button>
-
-    <!-- Template for ISBN Search Results -->
+    <!-- Typeahead result template -->
     <ng-template #rt let-r="result" let-t="term">
-        <ngb-highlight [result]="r.isbn13" [term]="t"></ngb-highlight>
+        <img *ngIf="r.volumeInfo.imageLinks && r.volumeInfo.imageLinks.smallThumbnail"
+            [src]="r.volumeInfo.imageLinks.smallThumbnail" class="me-1" style="width: 48px" />
+        <ngb-highlight [result]="r.volumeInfo.title" [term]="t"></ngb-highlight>
     </ng-template>
 
-    <!-- Display Selected Book Details -->
-    <div *ngIf="selectedBooks && selectedBooks.length>0">
-        <ng-container *ngFor="let selectedBook of selectedBooks">
-            <ng-container *ngTemplateOutlet="bookCard; context: { book: selectedBook }"></ng-container>
-        </ng-container>
+    <!-- Error message -->
+    <div *ngIf="searchFailed" class="alert alert-danger mt-3">Search failed</div>
+
+    <!-- Display selected books -->
+    <div *ngIf="selectedBooks.length > 0">
+        <h2 class="text-light mt-3">Search Results</h2>
+        <div *ngFor="let book of selectedBooks" class="mb-2">
+            <app-book-card [book]="book" [inCollection]="inCollection(book)" [status]="getBookStatus(book)"
+                (save)="saveBook(book)" (delete)="deleteBook(book.id)"></app-book-card>
+        </div>
     </div>
 
-    <!-- Display Error Message if any -->
-    <div *ngIf="errorMessage" class="alert alert-danger mt-3">{{ errorMessage }}</div>
-
-    <!-- Display Loading Message if any -->
-    <div *ngIf="loadingMessage" class="alert alert-info mt-3">{{ loadingMessage }}</div>
-
-    <hr>
-
-    <div *ngIf="savedBooks && savedBooks.length > 0">
+    <!-- Display saved books -->
+    <div>
         <h2 class="text-light mt-3">My Collection</h2>
-        <div class="row">
-            <div *ngFor="let book of savedBooks" class="col-md-4">
-                <ng-container *ngTemplateOutlet="bookCard; context: { book: book }"></ng-container>
+
+        <!-- Filter Controls -->
+        <div class="row mb-3">
+            <div class="col-8">
+                <input type="text" class="form-control bg-dark border-secondary text-light"
+                    placeholder="Search by title or ISBN..." [(ngModel)]="filterTerm"
+                    (ngModelChange)="onFilterChange()" />
+            </div>
+            <div class="col-4">
+                <select class="form-control bg-dark border-secondary text-light" [(ngModel)]="filterStatus"
+                    (change)="onFilterChange()">
+                    <option value="" selected>All</option>
+                    <option *ngFor="let status of statuses" [value]="status">
+                        {{ statusFormatter(status) | titlecase }}
+                    </option>
+                </select>
+            </div>
+        </div>
+
+        <div class="row" *ngIf="savedBooks.length > 0">
+            <div class="col-12 mb-2 col-md-6 mb-3" *ngFor="let item of savedBooks">
+                <app-book-card [book]="item.collectibleItem" [inCollection]="true" [status]="item.status"
+                    (delete)="deleteBook(item.collectibleItemId)"
+                    (searchByTitle)="setTitle($event)"></app-book-card>
+            </div>
+
+            <!-- Pagination -->
+            <div class="col-12" *ngIf="totalItems > pageSize">
+                <ngb-pagination [collectionSize]="totalItems" [(page)]="page" [pageSize]="pageSize"
+                    [maxSize]="5" [rotate]="true" [boundaryLinks]="true" [ellipses]="true" (pageChange)="onPageChange($event)">
+                </ngb-pagination>
             </div>
         </div>
     </div>
-
-    <ng-template #bookCard let-book="book">
-        <div *ngIf="book" class="card bg-dark text-white mt-3 shadow-sm border-secondary">
-            <div class="row g-0">
-                <div class="col-md-4">
-                    <img *ngIf="book.image" [src]="book.image" class="img-fluid rounded-start" alt="Book Cover"
-                        style="object-fit: cover;">
-                </div>
-                <div class="col-md-8">
-                    <div class="card-body">
-                        <h2 class="card-title">{{ book.title }} - {{ book.author }}</h2>
-                        <p class="card-text text-truncate">{{ book.description }}</p>
-                        <!-- Bottom left -->
-                        <div class="position-absolute bottom-0 end-0 m-2">
-                            <button *ngIf="notInCollection(book)" class="btn btn-outline-light mt-3 me-2" (click)="addBook(book)">Add to Collection</button>
-                            <button *ngIf="inCollection(book)" class="btn btn-outline-danger mt-3" (click)="removeBook(book)">Remove from Collection</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </ng-template>
-</div>
-
-<!-- Bootstrap model for the ngx scanner  <ngx-scanner-qrcode #action="scanner" [isBeep]="false" [vibrate]="0" (event)="scanEvent($event)"></ngx-scanner-qrcode>-->
-
-<div class="modal fade" id="scannerModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content bg-dark text-light">
-            <div class="modal-header">
-                <h5 class="modal-title" id="scannerModalLabel">Scanner</h5>
-            </div>
-            <div class="modal-body">
-                <ngx-scanner-qrcode #action="scanner" [isBeep]="false" [vibrate]="100" (event)="scanEvent($event)" ></ngx-scanner-qrcode>
-                <p *ngIf="scannedValues.length === 0" class="mt-2">No scans yet...</p>
-                <p *ngIf="scannedValues.length > 0" class="mt-2">Scanned Values:</p>
-                <p *ngFor="let scan of scannedValues" class="mt-1">{{scan}}</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary" (click)="setCamera()">Front Cam</button>
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" (click)="action.isStart && action.stop()">Close</button>
-            </div>
-        </div>
+    <div *ngIf="savedBooks.length === 0 && (filterTerm || filterStatus)" class="text-light">
+        <p>No books match your filter criteria.</p>
     </div>
 </div>

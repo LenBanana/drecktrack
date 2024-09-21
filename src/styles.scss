@@ -123,6 +123,16 @@ body {
   padding: 0 !important;
 }
 
+.page-link {  
+    background: #232525;
+    color: #fff;
+    border-color: #555;;
+}
+#typeahead-basic::placeholder {
+  color: #ccc; /* Light gray or any color that is visible on the dark background */
+  opacity: 1; /* Ensure the placeholder is fully opaque */
+}
+
 
 // Animations
 
